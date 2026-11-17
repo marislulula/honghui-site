@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build your capsule · Honghui Capsule</title><meta name="description" content="Design your capsule online: type, size, colours, TiO2-free and printing, with a to-scale preview and fill-weight estimate.">
+<meta property="og:title" content="Build your capsule · Honghui Capsule"><meta property="og:description" content="Design your capsule online: type, size, colours, TiO2-free and printing, with a to-scale preview and fill-weight estimate."><meta property="og:image" content="images/factory.webp">
+<link rel="icon" type="image/png" href="images/favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"><style>/* Layout: sticky header with dropdown menus; full-width bands holding a 1160px column; products as spec catalogue; tools (capsule builder, fill calculator) as two-pane panels. */
+:root{
+  --ink:#0f2238;--ink-soft:#4a5b70;--paper:#ffffff;--tint:#eef4fa;--line:#d5e0eb;
+  --blue:#1d5fae;--blue-deep:#123f78;--red:#c8323a;--on-blue:#ffffff;--green:#1f8a4c;
+  --cap-a:#2f8fd6;--cap-b:#e9eef3;--shadow:rgba(15,34,56,.18);
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",Roboto,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --wrap:1160px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ink:#e6eef7;--ink-soft:#a5b6c8;--paper:#0d1724;--tint:#132235;--line:#26384d;
+  --blue:#6aa8ec;--blue-deep:#9cc5f2;--red:#ef6b72;--on-blue:#08121e;--green:#5cc98a;--cap-a:#4ea3e6;--cap-b:#d8e2ec;--shadow:rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ink:#e6eef7;--ink-soft:#a5b6c8;--paper:#0d1724;--tint:#132235;--line:#26384d;
+  --blue:#6aa8ec;--blue-deep:#9cc5f2;--red:#ef6b72;--on-blue:#08121e;--green:#5cc98a;--cap-a:#4ea3e6;--cap-b:#d8e2ec;--shadow:rgba(0,0,0,.5);color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,4.4vw,3.2rem);font-weight:800}
+h2{font-size:clamp(1.6rem,3vw,2.3rem);font-weight:700}
+h3{font-size:1.25rem;font-weight:700}
+h4{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.band{padding-block:clamp(52px,7vw,88px)}
+.band.tint{background:var(--tint)}
+.band.tight{padding-block:clamp(36px,5vw,56px)}
+.eyebrow{font:600 .76rem/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.lead{font-size:1.08rem;color:var(--ink-soft);max-width:64ch}
+.muted{color:var(--ink-soft)}
+.head{display:grid;gap:12px;margin-bottom:36px;max-width:780px}
+.stack{display:grid;gap:16px}
+.mono{font-family:var(--mono);font-size:.92em}
+.note{margin-top:18px;color:var(--ink-soft);font-size:.9rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.grid2>*,.grid3>*,.grid4>*{min-width:0}
+@media (max-width:960px){.grid4{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}}
+@media (max-width:700px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+/* header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:70;background:var(--paper)}
+.topbar{background:var(--blue-deep);color:var(--on-blue);font-size:.84rem}
+.topbar .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-block:7px}
+.topbar a{color:inherit;text-decoration:none}
+.topbar a:hover{text-decoration:underline}
+header.site{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;background:var(--paper);border-bottom:1px solid var(--line)}
+header.site .bar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:70px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex-shrink:0}
+.brand img{width:42px;height:42px;object-fit:contain}
+.brand b{font:800 1.08rem/1.05 var(--display);display:block}
+.brand small{font:500 .68rem/1.2 var(--mono);color:var(--ink-soft);letter-spacing:.04em}
+nav.main{display:flex;align-items:center;gap:4px}
+nav.main>.item{position:relative}
+nav.main>.item>a{display:inline-flex;align-items:center;gap:4px;color:var(--ink);text-decoration:none;font-weight:500;font-size:.94rem;padding:10px 9px;border-radius:6px;white-space:nowrap}
+nav.main>.item>a:hover,nav.main>.item>a[aria-current="page"]{color:var(--blue)}
+nav.main .caret{width:10px;height:10px}
+.drop{position:absolute;left:0;top:100%;min-width:250px;background:var(--paper);border:1px solid var(--line);border-radius:8px;box-shadow:0 18px 40px -16px var(--shadow);padding:8px;display:none;z-index:5}
+.item:hover>.drop,.item:focus-within>.drop{display:grid}
+.drop a{display:grid;gap:2px;padding:9px 12px;border-radius:6px;color:var(--ink);text-decoration:none;font-size:.94rem;font-weight:500}
+.drop a small{color:var(--ink-soft);font-weight:400;font-size:.8rem}
+.drop a:hover{background:var(--tint)}
+.hdr-actions{display:flex;align-items:center;gap:8px}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.icon-btn:hover{border-color:var(--blue);color:var(--blue)}
+.menu-btn{display:none}
+@media (max-width:1140px){
+  nav.main{display:none;position:absolute;left:0;right:0;top:100%;background:var(--paper);border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;padding:8px max(20px,env(safe-area-inset-right,0px)) 16px max(20px,env(safe-area-inset-left,0px));max-height:calc(100vh - 120px);overflow:auto}
+  header.site.open nav.main{display:flex}
+  .drop{position:static;display:grid;box-shadow:none;border:0;padding:0 0 6px 12px;min-width:0}
+  .menu-btn{display:inline-flex}
+  .hdr-actions .btn{display:none}
+}
+@media (max-width:520px){.brand small{display:none}.topbar .hide-sm{display:none}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:var(--on-blue);border:0;border-radius:6px;padding:12px 20px;font:600 .96rem/1.1 var(--body);text-decoration:none;cursor:pointer;text-align:center}
+.btn:hover{background:var(--blue-deep)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--blue);color:var(--blue)}
+.btn.small{padding:9px 14px;font-size:.88rem}
+.link-arrow{font-weight:600;text-decoration:none;color:var(--blue)}
+.link-arrow:hover{text-decoration:underline}
+.crumbs{font-size:.85rem;color:var(--ink-soft);display:flex;gap:6px;flex-wrap:wrap}
+.crumbs a{color:var(--ink-soft)}
+
+/* home hero: full-bleed horizontal carousel, header floats over it (white type on photos is deliberate in both themes) */
+.hs{position:relative;overflow:hidden;background:#0b1c33;color:#ffffff;height:min(92vh,820px);min-height:560px}
+.hs-track{display:flex;height:100%;transition:transform .9s cubic-bezier(.65,0,.35,1)}
+.hs-slide{position:relative;flex:0 0 100%;height:100%;display:flex;align-items:flex-end;isolation:isolate}
+.hs-media{position:absolute;inset:0;z-index:-2}
+.hs-media>img{width:100%;height:100%!important;object-fit:cover}
+.hs-slide::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(8,20,38,.72) 0%,rgba(8,20,38,.35) 55%,rgba(8,20,38,0) 85%),linear-gradient(180deg,rgba(8,20,38,.55) 0%,rgba(8,20,38,.1) 35%,rgba(8,20,38,.8) 100%)}
+.hs-copy{width:100%;display:grid;gap:18px;padding-bottom:150px;justify-items:start}
+.hs-copy>*{max-width:760px}
+.hs .eyebrow{color:#9cc8f5}
+.hs h1,.hs h2{font-size:clamp(2.2rem,5.4vw,4.4rem);font-weight:800;color:#ffffff;line-height:1.05}
+.hs .lead{color:rgba(255,255,255,.88)}
+.hs .btn.ghost{color:#ffffff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
+.hs .btn.ghost:hover{background:rgba(255,255,255,.12);color:#ffffff}
+.hs-prod{position:absolute;inset:0;background:radial-gradient(circle at 75% 40%,#1d5fae 0%,#0b1c33 70%)}
+.hs-prod span{position:absolute;width:clamp(120px,13vw,200px);aspect-ratio:1;border-radius:14px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);background:#eef4fa}
+.hs-prod span img,.hs-prod span svg{width:100%;height:100%;object-fit:cover}
+.hs-prod .hp-0{right:5%;top:12%}.hs-prod .hp-1{right:20%;top:20%}.hs-prod .hp-2{right:5%;top:44%}.hs-prod .hp-3{right:20%;top:52%}.hs-prod .hp-4{right:35%;top:34%}
+.is-prod .hs-copy>*{max-width:600px}
+@media (max-width:1180px){.hs-prod .hp-4{display:none}}
+.hs-slide.is-prod::after{background:linear-gradient(90deg,rgba(8,20,38,.75) 0%,rgba(8,20,38,.2) 60%,rgba(8,20,38,0) 100%)}
+.hs-tabs{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding-bottom:34px}
+.hs-tab{background:none;border:0;padding:0;color:rgba(255,255,255,.65);font:600 .92rem/1.2 var(--body);text-align:left;cursor:pointer;display:grid;gap:10px}
+.hs-tab[aria-current="true"],.hs-tab:hover{color:#ffffff}
+.hs-bar{display:block;height:3px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}
+.hs-bar i{display:block;height:100%;width:0;background:#ffffff}
+.hs-tab[aria-current="true"] .hs-bar i{animation:hsbar var(--hs-dur,6s) linear forwards}
+.hs.paused .hs-tab[aria-current="true"] .hs-bar i{animation-play-state:paused}
+@keyframes hsbar{from{width:0}to{width:100%}}
+@media (max-width:760px){.hs-slide::after{background:linear-gradient(180deg,rgba(8,20,38,.7) 0%,rgba(8,20,38,.55) 40%,rgba(8,20,38,.88) 100%)}.hs{height:auto;min-height:0}.hs-slide{min-height:600px}.hs-copy{padding-bottom:110px;padding-top:120px}.hs-prod span{width:110px}.hs-prod .hp-0{right:40%;top:12%}.hs-prod .hp-1{right:6%;top:10%}.hs-prod .hp-2,.hs-prod .hp-3,.hs-prod .hp-4{display:none}.hs-tabs{gap:10px}.hs-tab{font-size:.78rem}}
+@media (prefers-reduced-motion:reduce){.hs-track{transition:none}.hs-tab[aria-current="true"] .hs-bar i{animation:none;width:100%}}
+/* mission block (modelled on a corporate mission panel): sky above, our plant along the bottom edge, white text upper right; white type is deliberate in both themes */
+.mission{position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(180deg,#7f9cc4 0%,#a9c0dc 55%,#c9d8ea 100%);color:#ffffff;min-height:clamp(600px,54vw,780px)}
+.mission-bg{position:absolute;left:0;right:0;bottom:0;width:100%;max-width:none;height:50%!important;object-fit:cover;object-position:center 75%;z-index:-2;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 38%);mask-image:linear-gradient(180deg,transparent 0%,#000 38%)}
+.mission::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(70,100,150,.35) 0%,rgba(110,140,190,.18) 55%,rgba(110,140,190,.28) 100%)}
+.mission .wrap{display:grid;grid-template-columns:2fr 3fr;padding-block:clamp(48px,6vw,80px) 0}
+.mission .mission-copy{grid-column:2;display:grid;gap:12px;min-width:0;text-shadow:0 1px 12px rgba(40,70,120,.35)}
+.mission-line{font:500 clamp(.98rem,1.4vw,1.15rem)/1.4 var(--body);text-transform:uppercase;letter-spacing:.01em}
+.mission-text{font-size:clamp(.98rem,1.3vw,1.08rem);line-height:1.95;color:rgba(255,255,255,.95)}
+@media (max-width:860px){.mission .wrap{grid-template-columns:1fr}.mission .mission-copy{grid-column:1}.mission{min-height:760px}.mission-bg{height:40%!important}}
+/* header floating over the home hero */
+.home-over .topbar{display:none}
+.home-over header.site{position:fixed;left:0;right:0;background:transparent;border-bottom-color:transparent;transition:background .25s,border-color .25s}
+.home-over header.site:not(.solid):not(.open) .brand,.home-over header.site:not(.solid):not(.open) .brand small,.home-over header.site:not(.solid):not(.open) nav.main>.item>a{color:#ffffff}
+.home-over header.site:not(.solid):not(.open) .icon-btn{background:transparent;color:#ffffff;border-color:rgba(255,255,255,.5)}
+.home-over header.site.solid,.home-over header.site.open{background:var(--paper);border-bottom-color:var(--line)}
+.home-over body::before{background:#0b1c33}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+@media (max-width:600px){.hero-cap{display:none}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font:500 .78rem/1 var(--mono);padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
+.page-hero{background:var(--tint);border-bottom:1px solid var(--line)}
+.page-hero .wrap{padding-block:clamp(36px,5vw,64px);display:grid;gap:14px}
+.page-hero.split .wrap{grid-template-columns:1.2fr .8fr;align-items:center;gap:40px}
+.page-hero.split img{border-radius:10px;width:100%;aspect-ratio:4/3;object-fit:cover}
+@media (max-width:860px){.hero .wrap,.page-hero.split .wrap{grid-template-columns:1fr}}
+
+/* figures */
+.facts{border-bottom:1px solid var(--line);background:var(--paper)}
+.facts .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.fact{padding:24px 18px;border-left:1px solid var(--line);display:grid;gap:4px}
+.fact:first-child{border-left:0;padding-left:0}
+.fact b{font:800 clamp(1.7rem,3.2vw,2.4rem)/1 var(--display);color:var(--blue-deep);font-variant-numeric:tabular-nums}
+.fact span{color:var(--ink-soft);font-size:.9rem}
+@media (max-width:700px){.facts .wrap{grid-template-columns:1fr 1fr}.fact:nth-child(3){border-left:0;padding-left:0}.fact:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* cards */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px;display:grid;gap:10px;align-content:start}
+.card p{color:var(--ink-soft);font-size:.95rem}
+.card .ico{width:44px;height:44px;border-radius:8px;background:var(--tint);display:grid;place-items:center;color:var(--blue)}
+a.card{text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+a.card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.pcard{padding:0;overflow:hidden}
+.pcard .pic{aspect-ratio:16/10;background:var(--tint);overflow:hidden}
+.pcard .pic img,.pcard .pic svg{width:100%;height:100%;object-fit:cover}
+.pcard .in{padding:20px;display:grid;gap:8px}
+.tag{font:500 .72rem/1.2 var(--mono);color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase}
+.spec-chips{display:flex;flex-wrap:wrap;gap:6px}
+.spec-chips span{font:500 .72rem/1 var(--mono);background:var(--tint);color:var(--ink);padding:6px 8px;border-radius:3px}
+ul.ticks{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+ul.ticks li{display:grid;grid-template-columns:20px 1fr;gap:10px}
+ul.ticks li::before{content:"";width:18px;height:18px;margin-top:3px;border-radius:50%;background:var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M5 9.3l2.6 2.5L13 6.5' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E") center/18px no-repeat}
+ul.plain{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--ink-soft)}
+
+/* tables */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+table.data{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.94rem}
+table.data th,table.data td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+table.data thead th{font:600 .72rem/1.3 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);background:var(--tint);white-space:nowrap}
+table.data tbody th{font:600 .95rem/1.35 var(--display)}
+table.data td{color:var(--ink-soft)}
+table.data tbody tr:last-child>*{border-bottom:0}
+table.sizes{min-width:640px}
+table.sizes td,table.sizes th{text-align:right;white-space:nowrap}
+table.sizes td:first-child,table.sizes th:first-child{text-align:left}
+table.sizes td{font-family:var(--mono);font-size:.9rem;color:var(--ink)}
+table.sizes td:first-child{font:700 1rem/1 var(--display);color:var(--blue-deep)}
+table.compare{min-width:760px}
+
+/* chooser */
+.chooser{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper)}
+.chooser>a{padding:20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;gap:6px;text-decoration:none}
+.chooser>a:hover{background:var(--tint)}
+.chooser>a:nth-child(3n){border-right:0}
+.chooser>a:nth-last-child(-n+3){border-bottom:0}
+.chooser .q{color:var(--ink-soft);font-size:.94rem}
+.chooser .a{font:700 1.08rem/1.2 var(--display);color:var(--blue-deep)}
+@media (max-width:760px){.chooser{grid-template-columns:1fr}.chooser>a{border-right:0}.chooser>a:nth-last-child(-n+3){border-bottom:1px solid var(--line)}.chooser>a:last-child{border-bottom:0}}
+
+/* product detail */
+.pd{display:grid;grid-template-columns:1fr 340px;gap:44px;align-items:start}
+.pd>*{min-width:0}
+.pd aside{position:sticky;top:96px;display:grid;gap:16px}
+.pd aside .card{gap:12px}
+.pd section+section{margin-top:44px}
+.pd h2{font-size:1.55rem;margin-bottom:14px}
+@media (max-width:900px){.pd{grid-template-columns:1fr}.pd aside{position:static}}
+.pd-img{border-radius:10px;overflow:hidden;background:var(--tint);aspect-ratio:1;max-width:340px;width:100%}
+.pd-img img,.pd-img svg{width:100%;height:100%;object-fit:cover}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;counter-reset:s;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper)}
+.steps>div{padding:20px;border-right:1px solid var(--line);display:grid;gap:6px;align-content:start;counter-increment:s}
+.steps>div:last-child{border-right:0}
+.steps>div::before{content:counter(s,decimal-leading-zero);font:600 .8rem/1 var(--mono);color:var(--blue)}
+.steps p{color:var(--ink-soft);font-size:.92rem}
+@media (max-width:900px){.steps{grid-template-columns:1fr}.steps>div{border-right:0;border-bottom:1px solid var(--line)}.steps>div:last-child{border-bottom:0}}
+
+/* certs */
+.certs{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.certs figure{margin:0;display:grid;gap:8px}
+.certs img{border:1px solid var(--line);border-radius:6px;background:#fff;width:100%;aspect-ratio:3/4;object-fit:contain}
+.certs figcaption{font:.76rem/1.35 var(--mono);color:var(--ink-soft)}
+.photos2{display:grid;grid-template-columns:3fr 2fr;gap:12px}
+.photos2 figure{margin:0;display:grid;gap:6px;min-width:0}
+.photos2 img{border-radius:8px;width:100%;aspect-ratio:4/3;object-fit:cover}
+.photos2 figcaption{font:.76rem/1.3 var(--mono);color:var(--ink-soft)}
+
+/* tools */
+.tool{display:grid;grid-template-columns:1fr 1.1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
+.tool>*{min-width:0}
+.tool .controls{padding:26px;display:grid;gap:18px;border-right:1px solid var(--line);align-content:start}
+.tool .preview{padding:26px;display:grid;gap:18px;background:var(--tint);align-content:start}
+@media (max-width:900px){.tool{grid-template-columns:1fr}.tool .controls{border-right:0;border-bottom:1px solid var(--line)}}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+legend,.lbl{font-weight:600;font-size:.9rem;padding:0;margin-bottom:6px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;inset:0}
+.seg span{display:inline-block;padding:8px 12px;border:1px solid var(--line);border-radius:6px;font-size:.88rem;cursor:pointer;background:var(--paper)}
+.seg input:checked+span{border-color:var(--blue);background:var(--blue);color:var(--on-blue)}
+.seg input:focus-visible+span{outline:3px solid var(--blue);outline-offset:2px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.swatches label{position:relative}
+.swatches input{position:absolute;opacity:0;inset:0}
+.swatches span{display:block;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);cursor:pointer}
+.swatches input:checked+span{box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--blue)}
+.swatches input:focus-visible+span{outline:3px solid var(--blue);outline-offset:4px}
+.capsvg{width:100%;height:auto;max-height:240px}
+.summary{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.92rem}
+.summary dt{color:var(--ink-soft)}
+.summary dd{margin:0;font-weight:600}
+.big-num{font:800 2.2rem/1 var(--display);color:var(--blue-deep);font-variant-numeric:tabular-nums}
+
+/* forms */
+input,select,textarea{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-width:0}
+textarea{min-height:120px;resize:vertical}
+form.quote{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:28px;display:grid;grid-template-columns:1fr 1fr;gap:16px;min-width:0}
+form.quote .full{grid-column:1/-1}
+form.quote label{display:grid;gap:6px;font-weight:500;font-size:.92rem;min-width:0;align-content:start}
+.opt{color:var(--ink-soft);font-weight:400}
+.hp{position:absolute;left:-9999px}
+.form-msg{grid-column:1/-1;font-size:.95rem;padding:12px 14px;border-radius:6px;background:var(--tint)}
+@media (max-width:560px){form.quote{grid-template-columns:1fr;padding:20px}}
+
+/* knowledge */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:24px}
+.filters input{max-width:340px}
+.art-meta{font:500 .74rem/1.2 var(--mono);color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+article.prose{max-width:720px}
+.prose h2{font-size:1.45rem;margin:34px 0 12px}
+.prose h3{margin:24px 0 8px}
+.prose p{margin:0 0 14px}
+.prose ul,.prose ol{margin:0 0 16px;padding-left:22px;display:grid;gap:6px}
+.prose .scroll{margin:8px 0 18px}
+.callout{border-left:3px solid var(--blue);background:var(--tint);padding:16px 18px;border-radius:0 8px 8px 0;margin:18px 0}
+.art-layout{display:grid;grid-template-columns:1fr 300px;gap:48px;align-items:start}
+.art-layout>*{min-width:0}
+.art-layout aside{position:sticky;top:96px;display:grid;gap:16px}
+@media (max-width:900px){.art-layout{grid-template-columns:1fr}.art-layout aside{position:static}}
+details.faq{border-bottom:1px solid var(--line);padding:16px 0}
+details.faq summary{cursor:pointer;font:600 1.05rem/1.35 var(--display);list-style:none;display:flex;justify-content:space-between;gap:16px}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::after{content:"+";font:400 1.4rem/1 var(--body);color:var(--blue)}
+details.faq[open] summary::after{content:"–"}
+details.faq .ans{padding-top:10px;color:var(--ink-soft);max-width:72ch}
+.dl{display:grid;grid-template-columns:52px 1fr auto;gap:16px;align-items:center}
+.dl .ftype{width:52px;height:60px;border-radius:6px;background:var(--tint);display:grid;place-items:center;font:600 .72rem/1 var(--mono);color:var(--red)}
+@media (max-width:560px){.dl{grid-template-columns:44px 1fr}.dl .btn{grid-column:1/-1}}
+
+/* search */
+.search-panel{position:fixed;inset:0;z-index:90;background:rgba(8,18,30,.55);display:grid;place-items:start center;padding:max(80px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.search-box{width:min(640px,100%);background:var(--paper);border-radius:12px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5);padding:16px;display:grid;gap:10px;max-height:75vh;overflow:auto}
+.search-box .row{display:flex;gap:8px}
+.results{display:grid;gap:4px}
+.results a{display:grid;gap:2px;padding:10px 12px;border-radius:6px;text-decoration:none;color:var(--ink)}
+.results a:hover,.results a:focus{background:var(--tint)}
+.results small{color:var(--ink-soft)}
+
+/* cta band */
+.cta-band{background:var(--blue-deep);color:var(--on-blue)}
+.cta-band .wrap{padding-block:44px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
+.cta-band p{opacity:.85;max-width:60ch}
+.cta-band .btn{background:var(--on-blue);color:var(--blue-deep)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cta-band{background:var(--tint);color:var(--ink)}:root:not([data-theme="light"]) .cta-band .btn{background:var(--blue);color:var(--on-blue)}}
+:root[data-theme="dark"] .cta-band{background:var(--tint);color:var(--ink)}
+:root[data-theme="dark"] .cta-band .btn{background:var(--blue);color:var(--on-blue)}
+
+/* footer */
+footer.site{background:var(--tint);border-top:1px solid var(--line);font-size:.92rem}
+footer.site .cols{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:28px;padding-block:44px}
+footer.site .cols>*{min-width:0}
+footer.site h4{font-size:.95rem;margin-bottom:10px}
+footer.site ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+footer.site a{color:var(--ink-soft);text-decoration:none}
+footer.site a:hover{color:var(--blue);text-decoration:underline}
+footer.site .base{border-top:1px solid var(--line);padding-block:18px;color:var(--ink-soft);font-size:.84rem;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+@media (max-width:860px){footer.site .cols{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){footer.site .cols{grid-template-columns:1fr}}
+.wa{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:50;width:54px;height:54px;border-radius:50%;background:#1faa55;color:#fff;display:grid;place-items:center;box-shadow:0 10px 24px -8px rgba(0,0,0,.45)}
+.wa:hover{background:#178a45}
+
+/* hero slider */
+.slider{position:relative;min-width:0;border-radius:10px;overflow:hidden;box-shadow:0 24px 50px -24px var(--shadow)}
+.slides{display:flex;transition:transform .7s cubic-bezier(.65,0,.35,1)}
+.slide{flex:0 0 100%;margin:0;position:relative}
+.slide img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.slide figcaption{position:absolute;left:14px;bottom:14px;background:var(--paper);color:var(--ink);font:500 .76rem/1.3 var(--mono);padding:7px 10px;border-radius:4px}
+.dots{position:absolute;right:14px;bottom:18px;display:flex;gap:6px}
+.dots button{width:9px;height:9px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.6);cursor:pointer}
+.dots button[aria-current="true"]{background:#fff;width:22px;border-radius:5px}
+/* marquee strip */
+.mq{overflow:hidden;background:var(--paper);border-bottom:1px solid var(--line);padding-block:28px}
+.mq-track{-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.mq-track{display:flex;width:max-content;animation:mq 55s linear infinite}
+.mq:hover .mq-track,.mq:focus-within .mq-track{animation-play-state:paused}
+.mq-set{display:flex;gap:16px;padding-right:16px}
+.mq-item{display:grid;gap:8px;width:240px;text-decoration:none;color:var(--ink)}
+.mq-pic{display:block;height:200px;border-radius:8px;overflow:hidden;background:var(--tint);border:1px solid var(--line)}
+.mq-pic img,.mq-pic svg{width:100%;height:100%;object-fit:cover}
+.mq-cap{font:600 .95rem/1.2 var(--display);color:var(--ink)}
+.mq-item:hover .mq-cap{color:var(--blue)}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (max-width:600px){.mq-item{width:180px}.mq-pic{height:150px}.mq-track{animation-duration:40s}}
+@media (prefers-reduced-motion:reduce){.mq{overflow-x:auto;-webkit-mask-image:none;mask-image:none}.mq-track{animation:none}.mq-set[aria-hidden]{display:none}.slides{transition:none}}
+
+.mq-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;-webkit-mask-image:none}
+.mq-pic.cert{background:#ffffff}
+.mq-pic.cert img{object-fit:contain;padding:8px}
+.mq-pic.tile{display:grid;align-content:center;gap:6px;padding:18px;background:var(--blue-deep);color:var(--on-blue);border-color:transparent}
+.mq-pic.tile b{font:700 1.05rem/1.2 var(--display)}
+.mq-pic.tile .mono{font-size:.95rem}
+.mq-pic.tile small{opacity:.8;font-size:.78rem;line-height:1.35}
+
+/* mission: text on top, dotted world map below, on navy (white type deliberate in both themes) */
+.mission{background:radial-gradient(circle at 50% 60%,#1d5fae 0%,#123f78 55%,#0b2a52 100%);color:#ffffff;min-height:0;display:flex;flex-direction:column}
+.mission::after{display:none}
+.mission .wrap{display:block;padding-block:clamp(48px,6vw,80px) 0;order:1}
+.mission .mission-copy{max-width:900px;margin:0 auto;text-align:center;display:grid;gap:12px;text-shadow:none}
+.mission-text{color:rgba(255,255,255,.88)}
+.mission-bg{position:static;order:2;transform:none;width:min(100%,1400px)!important;max-width:none;height:auto!important;margin:clamp(8px,2vw,24px) auto 0;-webkit-mask-image:none;mask-image:none;opacity:1}
+@media (max-width:700px){.mission-bg{width:115%!important;margin-left:-7.5%}}
+
+/* product mosaic (home) */
+.mosaic-head{max-width:none;grid-template-columns:1fr auto;align-items:end}
+.mosaic-head>*{grid-column:1}
+.mosaic-head .link-arrow{grid-column:2;grid-row:2 / span 2;align-self:end;white-space:nowrap}
+.mosaic{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.mz{position:relative;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);min-width:0}
+.mz-pic{display:block;overflow:hidden;background:var(--tint)}
+.mz-pic img,.mz-pic svg{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.mz:hover .mz-pic img,.mz:hover .mz-pic svg{transform:scale(1.04)}
+.mz-big{grid-column:span 2;border:0}
+.mz-big .mz-pic{aspect-ratio:16/8}
+.mz-band{display:grid;gap:8px;padding:28px 32px;background:var(--blue);color:var(--on-blue);flex:1;align-content:center}
+.mz-band b{font:600 clamp(1.3rem,2.2vw,1.75rem)/1.2 var(--display)}
+.mz-band small{font:500 .82rem/1.2 var(--mono);opacity:.85;letter-spacing:.04em;text-transform:uppercase}
+.mz-tall .mz-pic{aspect-ratio:16/10}
+.mz-body{display:flex;flex-direction:column;gap:12px;padding:24px 26px;flex:1}
+.mz-body b{font:600 clamp(1.2rem,1.8vw,1.5rem)/1.25 var(--display)}
+.mz-body .mz-desc{color:var(--ink-soft);font-size:.95rem}
+.mz-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-size:.85rem;color:var(--ink-soft)}
+.mz-foot span:last-child{font-size:1.3rem;line-height:1;color:var(--ink)}
+.mz-sq{border:0}
+.mz-sq .mz-pic{aspect-ratio:1}
+.mz-over{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;padding:24px;color:#ffffff;background:linear-gradient(180deg,rgba(11,28,51,0) 30%,rgba(11,28,51,.88) 100%)}
+.mz-over b{font:600 1.3rem/1.2 var(--display)}
+.mz-over .mz-desc{font-size:.92rem;color:rgba(255,255,255,.9)}
+.mz-more{font-weight:600;font-size:.9rem;color:#9cc8f5}
+@media (hover:hover){
+  .mz-over{background:rgba(11,28,51,.82);opacity:0;transition:opacity .3s ease}
+  .mz-over b,.mz-over .mz-desc,.mz-over .mz-more{transform:translateY(10px);transition:transform .35s ease}
+  .mz-sq:hover .mz-over,.mz-sq:focus-visible .mz-over{opacity:1}
+  .mz-sq:hover .mz-over>*,.mz-sq:focus-visible .mz-over>*{transform:none}
+}
+@media (max-width:900px){.mosaic{grid-template-columns:1fr 1fr}.mz-big{grid-column:1 / -1}.mz-sq:last-child{grid-column:1 / -1}.mz-sq:last-child .mz-pic{aspect-ratio:16/9}}
+@media (max-width:600px){.mosaic{grid-template-columns:1fr;gap:16px}.mz-big .mz-pic{aspect-ratio:4/3}.mz-sq .mz-pic,.mz-sq:last-child .mz-pic{aspect-ratio:4/3}.mosaic-head{grid-template-columns:1fr}.mosaic-head .link-arrow{grid-column:1;grid-row:auto}}
+/* about page certificate row */
+.cr{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;align-items:start}
+.cr-item{display:grid;gap:8px;color:inherit;text-decoration:none}
+.cr-pic{height:170px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px;overflow:hidden}
+.cr-pic img{width:100%;height:100%!important;min-height:0;object-fit:contain;display:block}
+.cr-pic:not(.tile){grid-template-rows:100%}
+.cr-pic.tile{background:var(--blue-deep);color:var(--on-blue);border-color:transparent;text-align:center;align-content:center;gap:6px;padding:14px}
+.cr-pic.tile b{font-size:.95rem;line-height:1.25}
+.cr-pic.tile .mono{font-size:.75rem;opacity:.9}
+.cr-pic.tile small{font-size:.7rem;opacity:.75;line-height:1.3}
+.cr-cap{font:.76rem/1.35 var(--mono);color:var(--ink-soft);text-align:center}
+a.cr-item:hover .cr-pic{border-color:var(--blue)}
+@media (max-width:900px){.cr{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.cr{grid-template-columns:repeat(2,1fr)}.cr-pic{height:140px}}
+/* compact mosaic: fits one laptop screen (v22) */
+@media (min-width:901px){
+.mosaic{gap:16px}
+.mz-big .mz-pic{aspect-ratio:16/6}
+.mz-band{padding:16px 26px;gap:4px}
+.mz-band b{font-size:1.4rem}
+.mz-tall .mz-pic{aspect-ratio:16/7}
+.mz-body{padding:16px 22px;gap:8px}
+.mz-body b{font-size:1.25rem}
+.mz-body .mz-desc{font-size:.9rem;line-height:1.45}
+.mz-foot{padding-top:10px}
+.mz-sq .mz-pic{aspect-ratio:16/9}
+.mz-over{padding:18px}
+.mz-over b{font-size:1.15rem}
+.mz-over .mz-desc{font-size:.86rem}
+}
+@media (min-width:901px){
+.mz-sec{padding-block:44px 48px}
+.mz-sec .head{margin-bottom:22px;gap:8px}
+.mz-sec .head h2{font-size:clamp(1.6rem,2.6vw,2.1rem)}
+.mz-sec .head .lead{font-size:.98rem}
+.mz-big .mz-pic{aspect-ratio:16/5.4}
+.mz-tall .mz-pic{aspect-ratio:16/5.6}
+.mz-sq .mz-pic{aspect-ratio:16/8}
+.mz-sq .mz-pic img{object-position:center 18%}
+}
+/* v23: full product images in small cards + halal badge */
+.mz-pic{position:relative}
+.mz-sq .mz-pic{background:#f2f6fc}
+@media (min-width:901px){.mz-sq .mz-pic{aspect-ratio:16/10}}
+.halal{position:absolute;top:12px;right:12px;width:64px;height:64px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.18))}
+.halal svg{width:100%;height:100%;display:block;transform:none!important}
+/* homepage history timeline (v25) */
+.tl{background:var(--paper);border-bottom:1px solid var(--line);padding-block:40px 36px;overflow:hidden}
+.tl-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:8px}
+.tl-head h2{font-size:clamp(1.5rem,2.4vw,2rem);margin-top:6px}
+.tl-nav{display:flex;gap:8px}
+.tl-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:1.4rem;line-height:1;cursor:pointer}
+.tl-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tl-scroll{overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);cursor:grab;user-select:none}
+.tl-scroll::-webkit-scrollbar{display:none}
+.tl-list{list-style:none;margin:0;padding:0 max(24px,calc((100vw - 1120px)/2));display:flex;width:max-content;position:relative}
+.tl-list::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:linear-gradient(90deg,var(--line),var(--blue) 50%,var(--line))}
+.tl-item{width:250px;margin-right:-90px;display:grid;grid-template-rows:150px 28px 150px;position:relative}
+.tl-item:last-child{margin-right:0}
+.tl-card{grid-row:1;align-self:end;display:grid;gap:4px;padding:0 16px 12px 0}
+.tl-item:nth-child(even) .tl-card{grid-row:3;align-self:start;padding:12px 16px 0 0}
+.tl-dot{grid-row:2;align-self:center;width:16px;height:16px;border-radius:50%;background:var(--paper);border:3px solid var(--blue);position:relative;z-index:1}
+.tl-item:nth-child(even) .tl-dot{background:var(--blue)}
+.tl-year{font:700 2rem/1 var(--display);color:var(--blue-deep)}
+.tl-title{font:600 .8rem/1.2 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--blue)}
+.tl-card p{margin:2px 0 0;font-size:.87rem;line-height:1.45;color:var(--ink-soft)}
+@media (max-width:600px){.tl-item{width:220px;margin-right:-80px;grid-template-rows:170px 28px 170px}.tl-list{padding-inline:20px}.tl-year{font-size:1.7rem}.tl-head{align-items:center}}
+/* about: production process flow (v29) */
+.pf{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,1fr);gap:28px 22px;counter-reset:pf}
+.pf-step{position:relative;display:grid;align-content:start;gap:6px;padding:16px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;min-width:0}
+.pf-step::after{content:"";position:absolute;right:-17px;top:28px;width:12px;height:12px;border-top:2px solid var(--blue);border-right:2px solid var(--blue);transform:rotate(45deg)}
+.pf-step:nth-child(7n)::after,.pf-step:last-child::after{display:none}
+.pf-num{font:700 .8rem/1 var(--mono);color:var(--on-blue);background:var(--blue);width:30px;height:30px;border-radius:50%;display:grid;place-items:center}
+.pf-step b{font:600 .98rem/1.25 var(--display);color:var(--ink);margin-top:4px}
+.pf-step p{margin:0;font-size:.84rem;line-height:1.45;color:var(--ink-soft)}
+.pf-step:last-child{background:var(--blue-deep);border-color:transparent}
+.pf-step:last-child b,.pf-step:last-child p{color:var(--on-blue)}
+.pf-step:last-child .pf-num{background:var(--on-blue);color:var(--blue-deep)}
+@media (max-width:1100px){.pf{grid-template-columns:repeat(4,1fr)}.pf-step:nth-child(7n)::after{display:block}.pf-step:nth-child(4n)::after{display:none}}
+@media (max-width:640px){.pf{grid-template-columns:1fr 1fr;gap:22px 18px}.pf-step::after{right:-14px;width:10px;height:10px}.pf-step:nth-child(4n)::after{display:block}.pf-step:nth-child(2n)::after{display:none}}
+/* homepage logistics banner (v30): own animated SVG */
+.lg{display:grid;grid-template-columns:repeat(3,1fr);height:clamp(320px,32vw,440px);overflow:hidden;background:#123f78}
+.lg-panel{position:relative;overflow:hidden;min-width:0}
+.lg-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.lg-tag{position:absolute;left:16px;bottom:14px;font:600 .72rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#fff;background:rgba(11,28,51,.45);padding:6px 9px;border-radius:4px}
+.lg-band{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);background:rgba(29,95,174,.94);color:#fff;text-align:center;padding:clamp(22px,3vw,38px) 18px;display:grid;gap:8px;z-index:2}
+.lg-line1{margin:0;font:700 clamp(1.15rem,1.9vw,1.65rem)/1.25 var(--display)}
+.lg-line2{margin:0;font-size:clamp(.88rem,1.1vw,1rem);opacity:.92}
+.lg-water{animation:lgWater 6s linear infinite}
+@keyframes lgWater{to{transform:translateX(-80px)}}
+.lg-ship{animation:lgBob 5s ease-in-out infinite}
+@keyframes lgBob{50%{transform:translate(6px,3px)}}
+.lg-wake{animation:lgWake 2.4s ease-in-out infinite}
+@keyframes lgWake{50%{stroke-opacity:.35}}
+.lg-dash{animation:lgDash .9s linear infinite}
+@keyframes lgDash{to{transform:translateY(60px)}}
+.lg-up{animation:lgUp 7s linear infinite}
+@keyframes lgUp{from{transform:translateY(440px)}to{transform:translateY(-180px)}}
+.lg-down{animation:lgDown 9s linear infinite;animation-delay:-4s}
+@keyframes lgDown{from{transform:translateY(-180px)}to{transform:translateY(440px)}}
+.lg-clouds{animation:lgClouds 26s linear infinite}
+@keyframes lgClouds{to{transform:translateX(-700px)}}
+.lg-plane{animation:lgFly 4s ease-in-out infinite}
+@keyframes lgFly{50%{transform:translate(4px,-8px)}}
+@media (prefers-reduced-motion:reduce){.lg *{animation:none!important}}
+@media (max-width:760px){.lg{grid-template-columns:1fr;height:auto}.lg-panel{height:200px}.lg-road{height:240px}}
+.tl.tl-tint{background:var(--tint);border-bottom:0;padding-block:56px 48px}
+/* homepage photo logistics banner (v31) */
+.lg2{position:relative;overflow:hidden;height:clamp(320px,34vw,480px);display:grid;place-items:center;background:#1b2a3d}
+.lg2-img{position:absolute;inset:0;width:100%;height:100%!important;object-fit:cover;object-position:center 60%;animation:lgZoom 24s ease-in-out infinite alternate;transform-origin:55% 45%}
+@keyframes lgZoom{from{transform:scale(1)}to{transform:scale(1.12)}}
+.lg2::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,28,51,.05),rgba(11,28,51,.25))}
+.lg2-band{position:relative;z-index:1;background:rgba(29,95,174,.92);color:#fff;text-align:center;padding:clamp(20px,2.6vw,34px) clamp(24px,4vw,56px);display:grid;gap:8px;max-width:min(92vw,640px)}
+@media (prefers-reduced-motion:reduce){.lg2-img{animation:none}}
+.tl-scroll{overflow-y:hidden;overscroll-behavior-x:contain;padding-block:4px}
+.tl-item{grid-template-rows:178px 28px 178px}
+@media (max-width:600px){.tl-item{grid-template-rows:188px 28px 188px}}
+/* ===== colour consistency pass (v33): navy #123f78 / blue #1d5fae / white + #eef4fa only ===== */
+.mission{background:linear-gradient(180deg,#123f78 0%,#0f3566 100%)}
+.mz-band{background:var(--blue-deep)}
+.mz-pic img{filter:saturate(.82)}
+.mz-more{color:#cfe1f5}
+.halal{filter:drop-shadow(0 2px 6px rgba(11,28,51,.25))}
+.lg2{background:#123f78}
+.lg2::after{background:linear-gradient(180deg,rgba(11,28,51,0),rgba(11,28,51,.18))}
+.lg2-band{background:var(--blue-deep)}
+.cta-band{background:#0f3566;color:#ffffff}
+.tl-list::before{background:var(--blue)}
+.tl-item:nth-child(odd) .tl-dot{background:var(--paper)}
+.pf-step:last-child{background:var(--blue-deep)}
+.cr-pic.tile,.mq-pic.tile{background:var(--blue-deep)}
+/* ===== blue + orange-red accent (v34) ===== */
+:root{--accent:#d9481f;--accent-deep:#b33a16;--accent-soft:#fdebe4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--accent:#ff7a4f;--accent-deep:#ff9670;--accent-soft:#3a1f17}}
+:root[data-theme="dark"]{--accent:#ff7a4f;--accent-deep:#ff9670;--accent-soft:#3a1f17}
+.btn{background:var(--accent);color:#ffffff}
+.btn:hover{background:var(--accent-deep)}
+.btn.ghost{background:transparent}
+.eyebrow{color:var(--accent)}
+.hs .eyebrow{color:#ffb08f}
+.hs-bar i{background:var(--accent)!important}
+.fact b{color:var(--accent)}
+.tl-year{color:var(--blue-deep)}
+.tl-item:nth-child(even) .tl-dot{background:var(--accent);border-color:var(--accent)}
+.pf-num{background:var(--accent);color:#ffffff}
+.pf-step:last-child .pf-num{background:#ffffff;color:var(--accent)}
+.pf-step::after{border-color:var(--accent)}
+.lg2-band{background:var(--blue-deep);border-bottom:4px solid var(--accent)}
+.cta-band .btn{background:var(--accent);color:#ffffff}
+.cta-band .btn:hover{background:var(--accent-deep)}
+.mission-line{color:#ffb08f}
+.mz-band{border-bottom:4px solid var(--accent)}
+ul.ticks li::before{background-color:var(--accent)}
+.link-arrow:hover{color:var(--accent)}
+/* v36: product mosaic enlarged */
+@media (min-width:901px){
+.mz-sec .wrap{max-width:var(--wrap)}
+.mz-big .mz-pic{aspect-ratio:16/6.2}
+.mz-tall .mz-pic{aspect-ratio:16/6.6}
+.mz-sq .mz-pic{aspect-ratio:16/10.4}
+.mz-band b{font-size:1.55rem}
+.mz-body b{font-size:1.4rem}
+.mz-body .mz-desc{font-size:.98rem}
+.mz-over b{font-size:1.28rem}
+.mz-over .mz-desc{font-size:.94rem}
+}
+/* v37: real capsule photos in mosaic */
+.mz-pic img{filter:none}
+.mz-sq .halal{top:10px;left:10px;right:auto;width:58px;height:58px}
+.mz-pic{background:#f7f8fa}
+.mz-video{width:100%;height:100%;object-fit:cover;display:block}
+/* v39: quality statement line above products */
+.statement{background:var(--paper);padding-block:clamp(64px,8vw,112px) clamp(8px,2vw,24px)}
+.statement p{margin:0 auto;max-width:900px;text-align:center;font:600 clamp(1.4rem,2.6vw,2.1rem)/1.35 var(--display);color:var(--blue-deep);letter-spacing:-.01em}
+.statement + .mz-sec{padding-top:clamp(40px,5vw,72px)}
+@media (min-width:1440px){.mz-sec .wrap{max-width:1280px}}
+footer.site a.ft-accent{color:var(--accent)}footer.site a.ft-accent:hover{color:var(--accent-deep)}
+.tb-mail{display:inline-flex;align-items:center;gap:6px}
+.cta-band p{max-width:none;text-wrap:pretty}.cta-band .stack{flex:1 1 560px;min-width:0}
+/* v57: interactive export map */
+.mission{display:flex;flex-direction:column}
+.mission-map{position:relative;order:2;width:min(100%,1400px);margin:clamp(8px,2vw,24px) auto 0}
+.mission-map img{display:block;width:100%;height:auto!important}
+.mission-map svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.mp-hit{fill:none;stroke:transparent;stroke-width:36;pointer-events:stroke;cursor:pointer}
+.mp-arc{fill:none;stroke:#bedcff;stroke-opacity:.55;stroke-width:3;pointer-events:none;transition:stroke .25s,stroke-opacity .25s,stroke-width .25s}
+.mp-dot{fill:#c8e4ff;transition:fill .25s,r .25s;pointer-events:none}
+.mp-halo{fill:transparent;cursor:pointer;transition:fill .25s}
+.mp-label{fill:#ffffff;font:600 34px/1 var(--body);opacity:0;transition:opacity .25s;pointer-events:none;paint-order:stroke;stroke:#0f3566;stroke-width:8px}
+.mp-origin{fill:#ffffff;font:600 28px/1 var(--body);opacity:.85;pointer-events:none;paint-order:stroke;stroke:#0f3566;stroke-width:8px}
+.mission-map svg:hover .mp-dest:not(:hover):not(.on) .mp-arc,.mission-map svg.has-on .mp-dest:not(.on):not(:hover) .mp-arc{stroke-opacity:.18}
+.mp-dest:hover .mp-arc,.mp-dest:focus .mp-arc,.mp-dest.on .mp-arc{stroke:var(--accent);stroke-opacity:1;stroke-width:6;filter:drop-shadow(0 0 8px rgba(255,140,90,.8))}
+.mp-dest:hover .mp-dot,.mp-dest:focus .mp-dot,.mp-dest.on .mp-dot{fill:#ff8a5c;r:12}
+.mp-dest:hover .mp-halo,.mp-dest:focus .mp-halo,.mp-dest.on .mp-halo{fill:rgba(255,138,92,.28)}
+.mp-dest:hover .mp-label,.mp-dest:focus .mp-label,.mp-dest.on .mp-label{opacity:1}
+.mp-dest:focus{outline:none}
+@media (max-width:700px){.mission-map{width:115%;margin-left:-7.5%}.mp-label{font-size:48px}}
+.hs-media>img.hs-campus{object-position:60% 40%}
+.tl-year{color:#111111}
+.mz-sq .mz-pic{background:#ecf0f4}
+.hs-media>img.hs-building{object-position:50% 45%}
+</style></head>
+<body data-page="capsule-builder"><div class="topbar"><div class="wrap"><span>Empty Hard Capsule Manufacturer</span><span><a class="tb-mail" href="mailto:honghui158@163.com"><svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 5.5l7 5.5 7-5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>honghui158@163.com</a></span></div></div>
+<header class="site"><div class="wrap bar">
+<a class="brand" href="index.html" aria-label="Honghui Capsule home"><img src="images/logo-emblem.png" alt="" width="42" height="42"><span><b>Honghui Capsule</b><small>SINCE 1995</small></span></a>
+<nav class="main" aria-label="Main"><div class="item"><a href="products.html" data-sec="products">Products<svg class="caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a><div class="drop"><a href="products.html">All products<small>Compare all types</small></a><a href="product-hpmc.html">HPMC<small>Hypromellose · plant cellulose</small></a><a href="product-gelatin.html">Gelatin<small>Pharmaceutical-grade bovine gelatin</small></a><a href="product-pullulan.html">Pullulan<small>Fermented from tapioca starch</small></a><a href="product-organic-pullulan.html">USDA Organic pullulan<small>CERES certified · NOP ID 4080208761</small></a><a href="product-enteric.html">Enteric<small>Delayed release · gelatin or HPMC base</small></a></div></div><div class="item"><a href="capsule-builder.html" data-sec="builder" aria-current="page">Build your capsule</a></div><div class="item"><a href="services.html" data-sec="services">Services</a></div><div class="item"><a href="quality.html" data-sec="quality">Quality</a></div><div class="item"><a href="knowledge.html" data-sec="knowledge">Knowledge Center<svg class="caret" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></a><div class="drop"><a href="knowledge.html">Articles<small>Guides for buyers and QA teams</small></a><a href="size-guide.html">Size guide & fill calculator<small>Find the right size for your dose</small></a><a href="faq.html">FAQ<small>Common buyer questions</small></a><a href="knowledge.html#downloads">Downloads<small>Product overview PDF</small></a></div></div><div class="item"><a href="about.html" data-sec="about">About us</a></div></nav>
+<div class="hdr-actions">
+<button class="icon-btn search-btn" type="button" aria-label="Search the site"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="2" fill="none"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2"/></svg></button>
+<a class="btn small" href="contact.html">Request a quote</a>
+<button class="icon-btn menu-btn" type="button" aria-label="Menu" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2"/></svg></button>
+</div></div></header><main><section class="page-hero"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a> / <a href="capsule-builder.html">Build your capsule</a></nav><span class="eyebrow">Customization</span><h1>Build your capsule</h1><p class="lead">Choose the type, size and colours, add printing, and see a to-scale preview. When it looks right, send the spec to us for a quotation.</p></div></section>
+<section class="band"><div class="wrap">
+<form class="tool" id="builder" onsubmit="return false">
+<div class="controls">
+<fieldset><legend>Capsule type</legend><div class="seg"><label><input type="radio" name="type" value="HPMC" checked><span>HPMC</span></label><label><input type="radio" name="type" value="Gelatin"><span>Gelatin</span></label><label><input type="radio" name="type" value="Pullulan"><span>Pullulan</span></label><label><input type="radio" name="type" value="USDA Organic pullulan"><span>USDA Organic pullulan</span></label><label><input type="radio" name="type" value="Enteric"><span>Enteric</span></label></div></fieldset>
+<fieldset><legend>Size</legend><div class="seg"><label><input type="radio" name="size" value="000"><span>000</span></label><label><input type="radio" name="size" value="00EL"><span>00EL</span></label><label><input type="radio" name="size" value="00"><span>00</span></label><label><input type="radio" name="size" value="0EL"><span>0EL</span></label><label><input type="radio" name="size" value="0" checked><span>0</span></label><label><input type="radio" name="size" value="1"><span>1</span></label><label><input type="radio" name="size" value="2"><span>2</span></label><label><input type="radio" name="size" value="3"><span>3</span></label><label><input type="radio" name="size" value="4"><span>4</span></label></div></fieldset>
+<fieldset><legend>Cap colour</legend><div class="swatches" id="sw-cap"></div></fieldset>
+<fieldset><legend>Body colour</legend><div class="swatches" id="sw-body"></div></fieldset>
+<fieldset><legend>Opacifier</legend><div class="seg"><label><input type="radio" id="op-tio2" name="opacifier" value="Standard" checked><span>Standard (TiO2)</span></label><label><input type="radio" id="op-free" name="opacifier" value="TiO2-free"><span>TiO2-free</span></label></div></fieldset>
+<div class="grid2" style="gap:14px">
+<label class="stack" style="gap:6px"><span class="lbl">Printing text <span class="opt">(optional)</span></span><input id="b-print" maxlength="14" placeholder="e.g. your logo"></label>
+<label class="stack" style="gap:6px"><span class="lbl">Tapped density <span class="opt">(g/ml)</span></span><input id="b-density" type="number" step="0.05" min="0.1" max="2" value="0.8"></label>
+</div>
+<label class="stack" style="gap:6px"><span class="lbl">Annual volume <span class="opt">(optional)</span></span><input id="b-qty" placeholder="e.g. 50 million capsules"></label>
+</div>
+<div class="preview">
+<span class="eyebrow">Preview · to scale</span>
+<svg class="capsvg" id="cap-svg" viewBox="0 0 520 230" role="img" aria-label="Capsule preview"></svg>
+<dl class="summary" id="cap-summary"></dl>
+<button class="btn" id="b-quote" type="button">Request a quote for this capsule</button>
+<p class="note" style="margin:0">Colours on screen are approximate. Final colours are matched to Pantone references and confirmed before production. Pullulan capsules are TiO2-free only.</p>
+</div>
+</form>
+</div></section></main><section class="cta-band"><div class="wrap"><div class="stack" style="gap:8px"><h2>Looking for a reliable capsule source?</h2><p>Send your type, size, colour and annual volume. We reply with specifications and a&nbsp;quotation.</p></div><a class="btn" href="contact.html">Request a quote</a></div></section>
+<footer class="site"><div class="wrap cols">
+<div><h4>Products</h4><ul><li><a href="product-hpmc.html">HPMC vegetarian capsules</a></li><li><a href="product-gelatin.html">Gelatin capsules</a></li><li><a href="product-pullulan.html">Pullulan capsules</a></li><li><a href="product-organic-pullulan.html">USDA Organic pullulan capsules</a></li><li><a href="product-enteric.html">Enteric capsules</a></li><li><a class="ft-accent" href="capsule-builder.html">Build your capsule</a></li></ul></div>
+<div><h4>Knowledge Center</h4><ul><li><a href="knowledge.html">Articles</a></li><li><a href="size-guide.html">Size guide &amp; calculator</a></li><li><a href="faq.html">FAQ</a></li><li><a href="knowledge.html#downloads">Downloads</a></li></ul></div>
+<div><h4>About us</h4><ul><li><a href="about.html">Our company</a></li><li><a href="quality.html">Quality &amp; certifications</a></li><li><a href="services.html">Services</a></li></ul></div>
+<div><h4>Contact</h4><ul><li><a href="contact.html">Quote form</a></li><li><a href="tel:+8657586176888">+86 (0)575-86176888</a></li><li><a href="mailto:honghui158@163.com">honghui158@163.com</a></li></ul></div>
+</div><div class="wrap base"><span>© 2026 Zhejiang Honghui Capsule Co., Ltd.</span><span>788 Xinchang Avenue East Road, Xinchang County, Zhejiang Province, China 312500</span></div></footer>
+
+<div class="search-panel" id="search-panel" hidden><div class="search-box" role="dialog" aria-label="Search"><div class="row"><input id="search-input" type="search" placeholder="Search products, sizes, articles…" aria-label="Search"><button class="btn ghost small search-close" type="button">Close</button></div><div class="results" id="search-results"></div></div></div><script>window.SEARCH=[{"u": "home", "t": "Home", "d": "Zhejiang Honghui Capsule makes empty hard capsules since 1995: gelatin, HPMC, pullulan, USDA Organic pullulan and enteric, sizes 000 to 4, TiO2-free options. US FDA Type IV DMF #41780.", "x": "Warehouses in Los Angeles, USA and Vancouver, Canada Your reliable partner for empty hard capsules An award-winning Zhejiang capsule brand, serving supplement and pharmaceutical manufacturers. Request specs or a quote About our factory Quality Strict inspection at every stage. Automatic lamp inspection and a full release test for every lot. Quality and certifications Services Product range From gelatin to organic pullulan. Plant-based, organic, enteric and TiO2-free options for every formula. See all products Build your capsule Our company Our quality Our products 1995 Founded in Xinchang, Zhejiang 20 Production lines 28B Capsules per year 9 Sizes, 000 to 4 incl. 00EL and 0EL Consistent quality, from premium raw materials to production equipment imported from Germany. Our products A full range of capsule types from one supplier All types come clear or in custom colours, with TiO2-free versions for clean-label and EU-compatible specifications. Compare all products → Meet the Honghui team Talk to us about your capsule specifications Gelatin capsules The classic two-piece hard capsule with the broadest market acceptance and the lowest shell cost. Halal certified. Pharmaceutical-grade bovine gelatin › HPMC vegetarian capsules Our core plant-based capsule. Vegan, gluten-free and non-GMO, with low moisture and stable dissolution through shelf life. View details › USDA Organic pullulan capsules A certified-organic capsule shell, so a certified-organic formula can keep its organic cl", "k": false}, {"u": "products", "t": "Capsule products", "d": "Compare Honghui gelatin, HPMC, pullulan, USDA Organic pullulan and enteric capsules.", "x": "Home / Products Products A full range of capsule types, nine sizes Compare our capsules side by side, then open each product for full specifications. Hypromellose · plant cellulose HPMC vegetarian capsules Our core plant-based capsule. Vegan, gluten-free and non-GMO, with low moisture and stable dissolution through shelf life. View details → Pharmaceutical-grade bovine gelatin Gelatin capsules The classic two-piece hard capsule with the broadest market acceptance and the lowest shell cost. Halal certified. View details → Fermented from tapioca starch Pullulan capsules A plant-based alternative to gelatin with a clear, glossy finish and naturally low oxygen permeability. View details → CERES certified · NOP ID 4080208761 USDA Organic pullulan capsules A certified-organic capsule shell, so a certified-organic formula can keep its organic claim all the way to the finished capsule. View details → Delayed release · gelatin or HPMC base Enteric capsules Capsules designed to pass through the stomach and release in the intestine, with no separate coating step on your filling line. View details → Comparison Side by side HPMC Gelatin Pullulan Organic pullulan Enteric Material Hypromellose, plant cellulose Bovine gelatin Pullulan from tapioca fermentation Certified-organic pullulan Gelatin or HPMC with delayed release Vegan / vegetarian Yes No Yes Yes HPMC base: yes Key strength Low moisture, stable dissolution Fast release, lowest cost Oxygen barrier, clarity Keeps organic claim Resist", "k": true}, {"u": "product-hpmc", "t": "HPMC vegetarian capsules", "d": "Our core plant-based capsule. Vegan, gluten-free and non-GMO, with low moisture and stable dissolution through shelf life.", "x": "Home / Products / HPMC Hypromellose · plant cellulose HPMC vegetarian capsules Our core plant-based capsule. Vegan, gluten-free and non-GMO, with low moisture and stable dissolution through shelf life. Overview HPMC (hypromellose) capsules are made from plant cellulose. They carry far less moisture than gelatin shells, so they protect hygroscopic fills and stay flexible in dry rooms and dry climates. Because HPMC does not cross-link with aldehydes, dissolution stays consistent over the life of the product. Advantages Low moisture content protects hygroscopic fills such as minerals, plant extracts and probiotics No cross-linking reaction with aldehydes, so dissolution stays stable through shelf life Strong and anti-brittle through high-speed filling, packing and shipping Chemically stable, with minimal interaction with the fill Suitable for vegan, vegetarian, Halal and clean-label claims Typical applications Probiotics and microbiome products Herbal and botanical extracts Mineral blends and other hygroscopic powders Sports nutrition and functional formulas Specifications Material Hypromellose (HPMC), non-GMO plant cellulose Sizes 000, 00, 00EL, 0, 0EL, 1, 2, 3, 4 Colours Clear, white opaque, custom Pantone colours, two-tone Opacifier Titanium dioxide or TiO2-free Printing Logo or text on request Claims supported Vegan, vegetarian, gluten-free, non-GMO, Halal Packing Carton with inner liner; lot number and production date on every carton Documents COA per lot, specification she", "k": false}, {"u": "product-gelatin", "t": "Gelatin capsules", "d": "The classic two-piece hard capsule with the broadest market acceptance and the lowest shell cost. Halal certified.", "x": "Home / Products / Gelatin Pharmaceutical-grade bovine gelatin Gelatin capsules The classic two-piece hard capsule with the broadest market acceptance and the lowest shell cost. Halal certified. Overview Gelatin capsules are the workhorse of the supplement and pharmaceutical industries. They disintegrate quickly, run reliably on every type of filling machine and offer the widest colour and printing options. Advantages Fast disintegration and release, well established in pharmacopoeial testing Consistent dimensions and low brittleness for manual, semi-automatic and high-speed encapsulation Full colour range, including opaque and two-tone shells, with excellent print quality Most economical shell for powders, granules and pellets Typical applications Vitamins, minerals and amino acids Pharmaceutical and OTC products Large-volume supplement lines where cost per capsule matters Specifications Material Pharmaceutical-grade bovine gelatin Sizes 000, 00, 00EL, 0, 0EL, 1, 2, 3, 4 Colours Clear, white opaque, custom Pantone colours, two-tone Opacifier Titanium dioxide or TiO2-free Printing Logo or text on request Certification Halal Packing Carton with inner liner; lot number and production date on every carton Documents COA per lot, specification sheet, MSDS Detailed specification sheets with tolerances are available on request. Availability of each size and colour combination is confirmed at quotation. Questions What is the gelatin source? Our gelatin capsules use pharmaceutical-grad", "k": false}, {"u": "product-pullulan", "t": "Pullulan capsules", "d": "A plant-based alternative to gelatin with a clear, glossy finish and naturally low oxygen permeability.", "x": "Home / Products / Pullulan Fermented from tapioca starch Pullulan capsules A plant-based alternative to gelatin with a clear, glossy finish and naturally low oxygen permeability. Overview Pullulan is a polysaccharide produced by fermentation of tapioca starch. Pullulan capsules are vegan, highly transparent and form a strong oxygen barrier, which makes them a premium choice for oxidation-sensitive actives. Advantages Naturally low oxygen permeability helps protect oxygen-sensitive ingredients through shelf life High transparency shows the fill clearly, ideal for premium positioning Non-GMO, gluten-free, preservative-free, with no starch or carrageenan gelling agents Dissolves readily and runs on standard filling equipment Typical applications Antioxidants, fish-oil powders and other oxidation-sensitive actives Beauty-from-within and premium botanical formulas Clean-label plant-based products Specifications Material Pullulan, fermentation-derived from tapioca starch Sizes 000, 00, 00EL, 0, 0EL, 1, 2, 3, 4 Colours Clear and custom colours Opacifier TiO2-free Printing Logo or text on request Claims supported Vegan, non-GMO, gluten-free, preservative-free Packing Carton with inner liner; lot number and production date on every carton Documents COA per lot, specification sheet, MSDS Detailed specification sheets with tolerances are available on request. Availability of each size and colour combination is confirmed at quotation. Questions Pullulan or HPMC? Both are plant-based. Pul", "k": false}, {"u": "product-organic-pullulan", "t": "USDA Organic pullulan capsules", "d": "A certified-organic capsule shell, so a certified-organic formula can keep its organic claim all the way to the finished capsule.", "x": "Home / Products / Organic pullulan CERES certified · NOP ID 4080208761 USDA Organic pullulan capsules A certified-organic capsule shell, so a certified-organic formula can keep its organic claim all the way to the finished capsule. Overview Our organic pullulan capsules are certified organic by CERES under the USDA National Organic Program. Your QA team or certifier can verify our listing in the USDA Organic Integrity Database (NOP ID 4080208761) before you request a quote. Advantages Lets a certified-organic formulation keep its organic claim on the finished capsule Same low oxygen permeability, clarity and plant-based profile as standard pullulan Vegan, non-GMO and titanium dioxide-free Organic certificate and transaction documentation supplied with each order Typical applications Certified-organic dietary supplements and superfood powders Organic herbal and botanical products for the US and EU markets Specifications Material Certified-organic pullulan Certification USDA Organic, CERES, NOP ID 4080208761 Sizes 000, 00, 00EL, 0, 0EL, 1, 2, 3, 4 Colours Clear and custom colours Opacifier TiO2-free Documents Organic certificate and transaction certificate per order Packing Carton with inner liner; lot number and production date on every carton Documents COA per lot, specification sheet, MSDS Detailed specification sheets with tolerances are available on request. Availability of each size and colour combination is confirmed at quotation. Questions How can I verify the certifica", "k": false}, {"u": "product-enteric", "t": "Enteric capsules", "d": "Capsules designed to pass through the stomach and release in the intestine, with no separate coating step on your filling line.", "x": "Home / Products / Enteric Delayed release · gelatin or HPMC base Enteric capsules Capsules designed to pass through the stomach and release in the intestine, with no separate coating step on your filling line. Overview Our enteric capsules are finished delayed-release capsules on a gelatin or HPMC base shell. You fill and close them like standard capsules, which saves the cost, time and equipment of coating filled capsules yourself. Advantages Protects acid-sensitive actives from gastric acid and reduces stomach irritation Finished-capsule approach: no separate coating step after filling Available on gelatin or vegetarian HPMC base shells Dissolution data and specifications supplied for your target profile Typical applications Probiotics and enzymes Actives that are unstable in acid Ingredients intended for intestinal absorption Specifications Base shell Gelatin or HPMC (vegetarian) Release Delayed release, designed to resist stomach acid and open in the intestine Colours Clear and custom colours Documents Specification and dissolution data on request Packing Carton with inner liner; lot number and production date on every carton Documents COA per lot, specification sheet, MSDS Detailed specification sheets with tolerances are available on request. Availability of each size and colour combination is confirmed at quotation. Questions How do you test acid resistance? Delayed-release capsules are usually tested with a two-stage dissolution method: an acid stage followed by a buf", "k": false}, {"u": "capsule-builder", "t": "Build your capsule", "d": "Design your capsule online: type, size, colours, TiO2-free and printing, with a to-scale preview and fill-weight estimate.", "x": "Home / Build your capsule Customization Build your capsule Choose the type, size and colours, add printing, and see a to-scale preview. When it looks right, send the spec to us for a quotation. Capsule type HPMC Gelatin Pullulan USDA Organic pullulan Enteric Size 000 00EL 00 0EL 0 1 2 3 4 Cap colour Body colour Opacifier Standard (TiO2) TiO2-free Printing text (optional) Tapped density (g/ml) Annual volume (optional) Preview · to scale Request a quote for this capsule Colours on screen are approximate. Final colours are matched to Pantone references and confirmed before production. Pullulan capsules are TiO2-free only.", "k": true}, {"u": "size-guide", "t": "Capsule size guide & fill calculator", "d": "Capsule size chart 000 to 4 with dimensions and volumes, plus a fill weight calculator for your powder.", "x": "Home / Knowledge Center / Size guide Knowledge Center · Tool Capsule size guide and fill calculator Enter your powder's tapped density and dose to see what each size holds and which size fits. Tapped density of your powder (g/ml) Dose per serving (mg, optional) Estimates use nominal capsule volumes. Plan for about 90–95% of the theoretical fill in production. Size Volume (ml) Fill per capsule Capsules per serving Reference Capsule size chart Nominal values for standard two-piece hard capsules. Our specification sheets with tolerances for each type and size are available on request. Size Closed length (mm) Body diameter (mm) Volume (ml) Fill at 0.6 g/ml Fill at 0.8 g/ml Fill at 1.0 g/ml 000 26.1 9.55 1.37 822 mg 1,096 mg 1,370 mg 00EL 25.3 8.18 1.02 612 mg 816 mg 1,020 mg 00 23.3 8.18 0.95 570 mg 760 mg 950 mg 0EL 23.1 7.34 0.78 468 mg 624 mg 780 mg 0 21.7 7.34 0.68 408 mg 544 mg 680 mg 1 19.4 6.63 0.50 300 mg 400 mg 500 mg 2 18.0 6.07 0.37 222 mg 296 mg 370 mg 3 15.9 5.57 0.30 180 mg 240 mg 300 mg 4 14.3 5.05 0.21 126 mg 168 mg 210 mg Industry-standard nominal figures. Actual fill weight depends on the tapped density of your formula and on machine settings. EL = elongated body.", "k": true}, {"u": "services", "t": "Services", "d": "Technical support, regulatory documents, customization, quality control and delivery options from Honghui Capsule.", "x": "Home / Services Services Support from material choice to delivery Our technical and quality teams help you choose, qualify and run our capsules. Technical support We match capsules to your filling equipment, powder characteristics and disintegration needs before the first order, and support you through filling trials and after delivery. Regulatory documents Specification sheets, COA per lot, MSDS, ISO 9001 and organic certificates, our FDA Type IV DMF number and answers to supplier questionnaires. Customization Pantone-matched colours, two-tone shells, TiO2-free opacifiers, elongated sizes and logo or text printing. Quality control Supplier COA for every raw-material batch, automatic lamp inspection of every capsule and a 14-item release test for every lot. Second-source qualification Documents and technical answers your QA team needs to approve us alongside your current supplier. Delivery options FOB China for all markets, or DDP delivery to US addresses with import duties included. We also have warehouses in Los Angeles, USA and Vancouver, Canada. Terms are confirmed in each quotation. How we work with a new customer From first inquiry to first delivery Your requirements Type, size, colour, fill, machine and annual volume. Recommendation and quote We suggest material and size and send specifications with a quotation. Documents Specification sheet, certificates and questionnaires for your QA team. Filling trial You test on your own line; we help tune machine settings. Produc", "k": false}, {"u": "quality", "t": "Quality & certifications", "d": "US FDA Type IV DMF #41780, ISO 9001:2015, USDA Organic (CERES), Halal. Quality control and documents for your supplier file.", "x": "Home / Quality Quality and compliance Documents your QA team can verify by number Certifications, quality control and the documents we supply with every order. US FDA Drug Master File Type IV, DMF #41780 , empty capsules USDA Organic CERES certified, NOP ID 4080208761 , listed in the USDA Organic Integrity Database ISO 9001:2015 Certificate 15/25Q8688R10 , valid to Sep 25, 2028. Scope: gelatin and HPMC empty capsules Halal Gelatin and plant capsules Plant materials Non-GMO HPMC and pullulan Safety data MSDS for each capsule type With every shipment Certificate of Analysis per lot Lot number and production date on each carton Retained samples kept 3 years For your supplier file Specification sheets by type and size Questionnaires: allergen, BSE/TSE, non-GMO, heavy metals, residual solvents Full certificate copies on request ISO 9001:2015 · WIT Assessment USDA Organic · CERES Quality control How every lot is checked Incoming materials Supplier COA on file for every batch of gelatin, HPMC and pullulan. Clean production GMP-designed Class 100,000 cleanroom workshops and automatic lines. Lamp inspection Automatic visual inspection of every capsule before packing. Release testing 14-item panel: dimensions, weight, moisture, disintegration, brittleness, heavy metals, microbiology. Retained samples Kept for 3 years per lot, with batch records traceable to raw materials and machine.", "k": false}, {"u": "about", "t": "About us", "d": "Zhejiang Honghui Capsule: empty hard capsule manufacturer in Xinchang, Zhejiang since 1995. 20 lines, 28 billion capsules a year.", "x": "Home / About us About us A capsule manufacturer, not a trading company Zhejiang Honghui Capsule has made empty hard capsules at its own plant in Xinchang, Shaoxing, since 1995. 1995 Founded 20 Production lines 28B Capsules per year ~200 Employees Our factory New automated lines a high quality system Our capsules are produced on brand-new automated production lines under a strict quality system, with a Certificate of Analysis for every lot. 30,000 m² site with 50,000 m² of buildings and about 200 employees GMP-designed Class 100,000 cleanroom workshops Production and testing equipment imported from Germany Automatic lamp inspection before packing National High-Tech Enterprise since 2015 Took part in drafting China's HPMC empty capsule industry standard Automatic production line Lamp inspection Our history Three decades of capsule making ‹ › 1995 Founded Honghui Xu founded Zhejiang Xinchang Honghui Capsule Factory in Xinchang, Zhejiang. 1998 Production begins We obtained our capsule production licence and began full-scale production. 2001 New home We moved to 788 Xinchang Avenue East Road and became Xinchang Honghui Capsule Co., Ltd. 2002 Enteric capsules We developed and registered gastric-resistant and enteric capsules. 2003 Expansion We expanded production and capital and became Zhejiang Xinchang Honghui Capsule Co., Ltd. 2007 Zhejiang Famous Brand Our capsules were named a Zhejiang Famous Brand Product. 2009 Famous Trademark Our trademark was recognised as a Zhejiang Famous", "k": false}, {"u": "knowledge", "t": "Knowledge Center", "d": "Guides on capsule materials, sizes, storage, enteric capsules, organic and TiO2-free capsules, and supplier qualification.", "x": "Home / Knowledge Center Knowledge Center Guides, tools and downloads Practical information for buyers, formulators and QA teams working with empty hard capsules. All Materials Sizing Handling Regulatory Materials · 6 min read Gelatin, HPMC or pullulan: how to choose a capsule material A practical comparison of the three main hard capsule materials: moisture, stability, claims, cost and typical uses. Read article → Sizing · 5 min read How to choose a capsule size and estimate fill weight How capsule volume and tapped density decide how much powder fits, with a worked example and a free calculator. Read article → Handling · 4 min read Storing empty capsules: temperature, humidity and handling How to store gelatin and plant capsules so they stay within specification and run smoothly on your filling line. Read article → Materials · 4 min read Enteric capsules vs coating filled capsules Two ways to get delayed release: buy a finished enteric capsule, or coat filled capsules yourself. How they compare. Read article → Regulatory · 4 min read Organic capsules: when your label needs a USDA Organic shell Why certified-organic supplements look for an organic capsule shell, and how to verify a supplier's certification. Read article → Regulatory · 4 min read Titanium dioxide-free capsules: what changed and your options Why many brands are moving to TiO2-free capsules, and what options exist for white and coloured shells. Read article → Regulatory · 5 min read Qualifying a second capsule s", "k": false}, {"u": "article-gelatin-vs-hpmc-vs-pullulan", "t": "Gelatin, HPMC or pullulan: how to choose a capsule material", "d": "A practical comparison of the three main hard capsule materials: moisture, stability, claims, cost and typical uses.", "x": "Home / Knowledge Center Materials · 6 min read Gelatin, HPMC or pullulan: how to choose a capsule material A practical comparison of the three main hard capsule materials: moisture, stability, claims, cost and typical uses. Most hard capsules on the market are made from one of three materials: gelatin, HPMC (hypromellose) or pullulan. All three fill on standard equipment, but they behave differently with your formula, your claims and your budget. Quick comparison Gelatin HPMC Pullulan Source Animal (bovine) Plant cellulose Fermented tapioca starch Moisture in the shell Higher (typically 13–16%) Much lower Moderate Vegan / vegetarian claim No Yes Yes Oxygen barrier Good Moderate Very good Clarity Good Good Excellent Relative shell cost Lowest Medium Highest When gelatin is the right choice Gelatin disintegrates quickly, prints well and is the most economical shell. For standard vitamins, minerals and amino acids where no vegetarian claim is needed, it is usually the best value. Two things to watch: gelatin carries more moisture, which it can pass to very hygroscopic fills, and it can cross-link with aldehydes in some ingredients, which slows dissolution over time. When HPMC is the right choice HPMC is the standard vegetarian capsule. Its low moisture content protects hygroscopic powders such as probiotics, minerals and dry plant extracts, and it stays flexible in dry conditions where gelatin may turn brittle. HPMC does not cross-link, so dissolution stays stable through shelf ", "k": false}, {"u": "article-capsule-size-and-fill-weight", "t": "How to choose a capsule size and estimate fill weight", "d": "How capsule volume and tapped density decide how much powder fits, with a worked example and a free calculator.", "x": "Home / Knowledge Center Sizing · 5 min read How to choose a capsule size and estimate fill weight How capsule volume and tapped density decide how much powder fits, with a worked example and a free calculator. The right capsule size is the smallest one that holds your dose per serving at a fill your machine can run consistently. Two numbers decide it: the capsule's volume and your powder's tapped density. The formula Fill weight (mg) = capsule volume (ml) × tapped density (g/ml) × 1000 Example: a size 0 capsule holds about 0.68 ml. A powder with a tapped density of 0.8 g/ml gives roughly 0.68 × 0.8 × 1000 = 544 mg per capsule. Finding your tapped density Your formulator or ingredient supplier can usually give you the tapped density of the blend. If not, a simple tapped-density test in the lab is enough. Most supplement powders fall between 0.4 and 1.0 g/ml; granulated or dense mineral blends can be higher. Practical tips Leave a margin. Real fill weights depend on machine settings and powder flow, so plan for 90–95% of the theoretical figure. Consider elongated sizes. 00EL and 0EL hold more at the same diameter, which can reduce capsules per serving without making them harder to swallow. Think about the consumer. Sizes 0 and 00 are the most common for adult supplements; 000 is large for many people. Use our capsule size guide and fill calculator to compare all nine sizes for your powder in seconds. Need a recommendation? Send your formula details and we will suggest a capsule", "k": false}, {"u": "article-storing-empty-capsules", "t": "Storing empty capsules: temperature, humidity and handling", "d": "How to store gelatin and plant capsules so they stay within specification and run smoothly on your filling line.", "x": "Home / Knowledge Center Handling · 4 min read Storing empty capsules: temperature, humidity and handling How to store gelatin and plant capsules so they stay within specification and run smoothly on your filling line. Empty hard capsules are sensitive to moisture. Too humid and they soften or stick; too dry and gelatin shells can become brittle. Good storage keeps them in specification and keeps your filling line running. Recommended conditions Temperature 15–25 °C (59–77 °F) Relative humidity 35–65% Away from direct sunlight, heat sources and strong odours The exact storage conditions and shelf life for each capsule type are stated on our specification sheet. Handling tips Keep cartons sealed until use, and reseal the inner liner after opening. In cold weather, let cartons reach room temperature before opening to avoid condensation on the capsules. Use stock first-in, first-out, and keep the lot number with each opened carton for traceability. Condition capsules in the filling room for a few hours before running if the warehouse climate is very different. Gelatin vs plant capsules in storage Gelatin capsules are more affected by low humidity and can turn brittle if they dry out. HPMC capsules hold far less moisture and stay flexible in dry conditions, which is one reason they are popular in dry climates and air-conditioned plants. Need a recommendation? Send your formula details and we will suggest a capsule and size. Ask our team More guides Gelatin, HPMC or pullulan: how t", "k": false}, {"u": "article-enteric-capsules-vs-coating", "t": "Enteric capsules vs coating filled capsules", "d": "Two ways to get delayed release: buy a finished enteric capsule, or coat filled capsules yourself. How they compare.", "x": "Home / Knowledge Center Materials · 4 min read Enteric capsules vs coating filled capsules Two ways to get delayed release: buy a finished enteric capsule, or coat filled capsules yourself. How they compare. Some actives should not be released in the stomach: probiotics and enzymes that acid can damage, or ingredients that irritate the stomach lining. Delayed-release (enteric) delivery solves this. There are two main routes. Route 1: coat filled capsules Standard capsules are filled, then coated in a pan or fluid-bed coater with an enteric polymer. It works, but it adds a process step, coating equipment, solvent or water handling, drying time and another set of in-process tests. Route 2: use a finished enteric capsule The capsule shell itself is made to resist stomach acid. You fill and close it like any other capsule, with no coating step afterwards. This saves equipment and time, and is often easier for contract manufacturers that do not have coating capacity. How delayed release is tested Delayed-release dosage forms are usually tested with a two-stage dissolution method: an acid stage that simulates the stomach, followed by a buffer stage that simulates the intestine. When you request a quote, tell us your target profile and we will supply the matching specification and dissolution data. See our enteric capsules , available on gelatin or HPMC base shells. Need a recommendation? Send your formula details and we will suggest a capsule and size. Ask our team More guides Gela", "k": false}, {"u": "article-organic-capsules", "t": "Organic capsules: when your label needs a USDA Organic shell", "d": "Why certified-organic supplements look for an organic capsule shell, and how to verify a supplier's certification.", "x": "Home / Knowledge Center Regulatory · 4 min read Organic capsules: when your label needs a USDA Organic shell Why certified-organic supplements look for an organic capsule shell, and how to verify a supplier's certification. If you sell a certified-organic supplement in capsules, the capsule shell is part of the product. Under the USDA National Organic Program, the shell is counted with the other ingredients when your certifier reviews the formula and the label claim. Why an organic shell helps It removes a non-organic ingredient from the formula, which makes it easier to meet the organic content needed for your claim. It simplifies the review with your certifier, because the shell comes with its own organic certificate and transaction documents. It supports a consistent clean-label story: plant-based, vegan and organic. The exact requirement depends on your label claim and your certifier, so confirm with them before you change the formula. How to verify a supplier Every USDA-certified operation is listed in the public USDA Organic Integrity Database . Search for the company name or its NOP ID and check that the certified products include capsules. Our listing: Zhejiang Honghui Capsule, NOP ID 4080208761, certified by CERES. See our USDA Organic pullulan capsules . Need a recommendation? Send your formula details and we will suggest a capsule and size. Ask our team More guides Gelatin, HPMC or pullulan: how to choose a capsule material How to choose a capsule size and estimate", "k": false}, {"u": "article-tio2-free-capsules", "t": "Titanium dioxide-free capsules: what changed and your options", "d": "Why many brands are moving to TiO2-free capsules, and what options exist for white and coloured shells.", "x": "Home / Knowledge Center Regulatory · 4 min read Titanium dioxide-free capsules: what changed and your options Why many brands are moving to TiO2-free capsules, and what options exist for white and coloured shells. Titanium dioxide (TiO2, E171) has long been used to make capsule shells white and opaque. Its status has changed in recent years, and many brands now specify TiO2-free capsules. What changed European Union: in 2022 the EU stopped authorising titanium dioxide as a food additive (E171). This covers food supplements sold in the EU. United States: titanium dioxide is still a permitted colour additive, but petitions have asked the FDA to revisit it, and many brands and retailers prefer to avoid it for clean-label reasons. Your options Clear capsules: no opacifier at all. Suitable when the fill looks good. TiO2-free white and coloured shells: use alternative opacifier systems. We offer TiO2-free versions across our gelatin and HPMC range. Pullulan capsules: our pullulan and organic pullulan capsules are TiO2-free. TiO2-free white shells can look slightly different from a classic TiO2 white. If appearance matters, ask for a colour match to your current capsule when you request a quote. Need a recommendation? Send your formula details and we will suggest a capsule and size. Ask our team More guides Gelatin, HPMC or pullulan: how to choose a capsule material How to choose a capsule size and estimate fill weight Storing empty capsules: temperature, humidity and handling Enter", "k": false}, {"u": "article-supplier-qualification-checklist", "t": "Qualifying a second capsule supplier: a document checklist", "d": "The documents QA teams usually request when adding a new empty capsule supplier, and what to check in each.", "x": "Home / Knowledge Center Regulatory · 5 min read Qualifying a second capsule supplier: a document checklist The documents QA teams usually request when adding a new empty capsule supplier, and what to check in each. Many contract manufacturers keep a second capsule supplier to protect against shortages, price changes and long lead times. Qualifying one is mostly a document exercise followed by a filling trial. Documents to request Document What to check Specification sheet Dimensions and tolerances, weight, moisture, disintegration, microbiology, for your exact type and size Certificate of Analysis Issued per lot, with results against the specification Quality system certificate ISO 9001 scope covers capsule production; certificate still valid Drug Master File For pharmaceutical customers: DMF number and type (Type IV for excipients such as capsules) Material statements Allergen, BSE/TSE, non-GMO, heavy metals, residual solvents Claim certificates Halal or organic certificates if your label needs them; verify organic status in the USDA database MSDS One per capsule type Then run a filling trial Run the new capsules on your own machine with your own powder. Check separation and closing, fill-weight variation, defects per thousand, and dissolution or disintegration of the finished product. What we provide Honghui supplies a specification sheet by type and size, a COA for every lot, ISO 9001:2015 and organic certificates, our US FDA Type IV DMF number (#41780), MSDS, and answers ", "k": false}, {"u": "faq", "t": "FAQ", "d": "Answers to common questions about Honghui capsules: types, sizes, colours, TiO2-free, certifications, documents, MOQ and delivery.", "x": "Home / Knowledge Center / FAQ Knowledge Center Frequently asked questions Answers to the questions buyers ask us most. Do not see yours? Ask us directly. Company Are you a manufacturer or a trading company? We are a manufacturer, with our own plant in Xinchang, Zhejiang, China, operating since 1995 with 20 production lines and an annual capacity of about 28 billion capsules. How do I reach your sales team? Email honghui158@163.com, call +86 (0)575-86176888, or use the quote form on our contact page. Products Which capsule types do you make? Gelatin, HPMC (vegetarian), pullulan, USDA Organic pullulan and enteric (delayed-release) capsules. Which sizes are available? Sizes 000, 00, 00EL, 0, 0EL, 1, 2, 3 and 4. Availability of each size, colour and type combination is confirmed at quotation. Can you match our current capsule colour? Yes. Send us the Pantone references for the cap and body, and we will match them and confirm the colours with you before production. Do you offer titanium dioxide-free capsules? Yes. TiO2-free versions are available across our gelatin and HPMC range, and our pullulan capsules are TiO2-free. Can you print our logo on the capsules? Yes, logo or text printing is available on request. Quality and documents What certifications do you hold? US FDA Type IV Drug Master File #41780, ISO 9001:2015, USDA Organic (CERES, NOP ID 4080208761) for our organic pullulan, and Halal. What documents come with each order? A Certificate of Analysis for every lot. Each cart", "k": true}, {"u": "contact", "t": "Request a quote", "d": "Request specifications or a quotation for empty hard capsules from Honghui Capsule.", "x": "Home / Contact Contact Request specifications or a quote Send your capsule details and we will reply with specifications and a quotation. We are glad to be evaluated as a second source alongside your current supplier. Email honghui158@163.com Head office and factory Zhejiang Honghui Capsule Co., Ltd. 788 Xinchang Avenue East Road, Xinchang County, Zhejiang Province, China 312500 Phone +86 (0)575-86176888 +86 (0)575-86516228 +86 (0)575-86516788 +86 (0)575-86516668 Fax +86 (0)575-86176202 For a fast quotation, tell us Capsule type and size Colour (clear, white, or Pantone for cap and body) TiO2-free, printing or other special specs Annual volume and typical order quantity Delivery destination We added the capsule you built. Check the details and add anything else. Name Company Business email Phone Country Capsule type Select HPMC Gelatin Pullulan USDA Organic pullulan Enteric Not sure yet Size (e.g. 00, 0, 1) Annual volume (optional) Message Send request", "k": true}];</script><script>(function(){
+"use strict";
+var BUNDLE = document.body.hasAttribute('data-bundle');
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function pageUrl(name,q){
+  if(BUNDLE){window.__prefill=q||'';return '#'+name;}
+  return (name==='home'?'index':name)+'.html'+(q?'?'+q:'');
+}
+function go(name,q){
+  if(BUNDLE){window.__prefill=q||'';if(location.hash==='#'+name){route();}else{location.hash=name;}}
+  else{location.href=pageUrl(name,q);}
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+/* ---------- header ---------- */
+var hdr=$('header.site');
+var mb=$('.menu-btn');
+if(mb){mb.addEventListener('click',function(){var o=hdr.classList.toggle('open');mb.setAttribute('aria-expanded',o?'true':'false');});}
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('nav.main a');if(a&&hdr){hdr.classList.remove('open');}});
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-q]');if(a&&BUNDLE){window.__prefill=a.getAttribute('data-q');if(location.hash==='#contact'){e.preventDefault();route();}}});
+
+/* ---------- search ---------- */
+var sp=$('#search-panel'), si=$('#search-input'), sr=$('#search-results');
+function openSearch(){sp.hidden=false;si.value='';renderSearch('');setTimeout(function(){si.focus();},30);}
+function closeSearch(){sp.hidden=true;}
+$$('.search-btn').forEach(function(b){b.addEventListener('click',openSearch);});
+if(sp){
+  sp.addEventListener('click',function(e){if(e.target===sp||e.target.closest('.search-close')||e.target.closest('.results a'))closeSearch();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!sp.hidden)closeSearch();if(e.key==='/'&&sp.hidden&&!/input|textarea|select/i.test((document.activeElement||{}).tagName||'')){e.preventDefault();openSearch();}});
+  si.addEventListener('input',function(){renderSearch(si.value);});
+}
+function renderSearch(q){
+  var idx=window.SEARCH||[];q=q.trim().toLowerCase();
+  var terms=q.split(/\s+/).filter(Boolean);
+  var hits=idx.map(function(p){
+    if(!terms.length)return {p:p,s:p.k?1:0};
+    var t=p.t.toLowerCase(),x=(p.d+' '+p.x).toLowerCase(),s=0;
+    for(var i=0;i<terms.length;i++){var w=terms[i];if(t.indexOf(w)>-1)s+=5;else if(x.indexOf(w)>-1)s+=1;else return {p:p,s:0};}
+    return {p:p,s:s};
+  }).filter(function(h){return h.s>0;}).sort(function(a,b){return b.s-a.s;}).slice(0,10);
+  sr.innerHTML=hits.length?hits.map(function(h){return '<a href="'+pageUrl(h.p.u)+'"><b>'+esc(h.p.t)+'</b><small>'+esc(h.p.d)+'</small></a>';}).join(''):'<p class="muted" style="padding:10px 12px">No pages match "'+esc(q)+'". Try "HPMC", "size", "organic" or "storage".</p>';
+}
+
+/* ---------- size data ---------- */
+var SIZE_ORDER=["000","00EL","00","0EL","0","1","2","3","4"];
+var SIZES={"000":[26.1,9.55,1.37],"00EL":[25.3,8.18,1.02],"00":[23.3,8.18,0.95],"0EL":[23.1,7.34,0.78],"0":[21.7,7.34,0.68],"1":[19.4,6.63,0.50],"2":[18.0,6.07,0.37],"3":[15.9,5.57,0.30],"4":[14.3,5.05,0.21]};
+
+/* ---------- fill weight calculator ---------- */
+function initCalc(root){
+  var form=$('#calc',root);if(!form||form.dataset.ready)return;form.dataset.ready='1';
+  var dens=$('#calc-density',form),target=$('#calc-target',form),out=$('#calc-out',root),body=$('#calc-rows',root);
+  function run(){
+    var d=parseFloat(dens.value),t=parseFloat(target.value);
+    if(!(d>0)){out.innerHTML='<p class="muted">Enter a tapped density above 0 g/ml.</p>';return;}
+    var best=null;
+    body.innerHTML=SIZE_ORDER.map(function(k){
+      var mg=Math.round(SIZES[k][2]*d*1000);
+      var fits=t>0&&mg>=t;
+      if(fits&&(!best||mg<best.mg))best={k:k,mg:mg};
+      return '<tr data-size="'+k+'"><td>'+k+'</td><td>'+SIZES[k][2].toFixed(2)+'</td><td>'+mg.toLocaleString('en-US')+' mg</td><td>'+(t>0?(Math.ceil(t/mg))+'':'–')+'</td></tr>';
+    }).join('');
+    if(t>0){
+      if(best){
+        $$('tr',body).forEach(function(r){if(r.dataset.size===best.k)r.style.background='var(--tint)';});
+        out.innerHTML='<p class="muted">Smallest size that holds '+t.toLocaleString('en-US')+' mg in one capsule</p><div class="big-num">Size '+best.k+'</div><p class="muted">about '+best.mg.toLocaleString('en-US')+' mg at '+d+' g/ml</p>';
+      }else{
+        var n=Math.ceil(t/Math.round(SIZES['000'][2]*d*1000));
+        out.innerHTML='<p class="muted">'+t.toLocaleString('en-US')+' mg does not fit in one capsule at '+d+' g/ml.</p><div class="big-num">'+n+' × size 000</div><p class="muted">or see the "capsules per serving" column for other sizes.</p>';
+      }
+    }else{out.innerHTML='<p class="muted">Enter a target dose per serving to get a size recommendation.</p>';}
+  }
+  form.addEventListener('input',run);form.addEventListener('submit',function(e){e.preventDefault();run();});run();
+}
+
+/* ---------- capsule builder ---------- */
+var COLORS={"Clear":"clear","White":"#f4f5f2","Yellow":"#f2c230","Orange":"#ee7d22","Red":"#c8323a","Pink":"#f19bb8","Purple":"#7a4fa3","Blue":"#2f6fd6","Light blue":"#8cc8f0","Green":"#2e9a57","Brown":"#7a4b2a","Black":"#2a2a2a"};
+function initBuilder(root){
+  var f=$('#builder',root);if(!f||f.dataset.ready)return;f.dataset.ready='1';
+  ['cap','body'].forEach(function(part){
+    var box=$('#sw-'+part,f);
+    box.innerHTML=Object.keys(COLORS).map(function(n,i){
+      var c=COLORS[n],bg=c==='clear'?'repeating-linear-gradient(45deg,var(--paper) 0 4px,var(--line) 4px 8px)':c;
+      return '<label title="'+n+'"><input type="radio" id="'+part+'-'+i+'" name="'+part+'" value="'+n+'"'+((part==='cap'&&n==='Blue')||(part==='body'&&n==='White')?' checked':'')+'><span style="background:'+bg+'"></span></label>';
+    }).join('');
+  });
+  var svg=$('#cap-svg',root),sum=$('#cap-summary',root);
+  function val(n){var el=f.querySelector('[name="'+n+'"]:checked')||f.querySelector('[name="'+n+'"]');return el?el.value:'';}
+  function draw(){
+    var type=val('type'),size=val('size'),cap=val('cap'),body=val('body'),op=val('opacifier'),txt=$('#b-print',f).value.trim().slice(0,14),dens=parseFloat($('#b-density',f).value)||0;
+    var plantOnly=(type==='Pullulan'||type==='USDA Organic pullulan');
+    var tio=$('#op-tio2',f);
+    if(tio){tio.disabled=plantOnly;if(plantOnly&&op==='Standard'){$('#op-free',f).checked=true;op='TiO2-free';}}
+    var s=SIZES[size],L=s[0],D=s[1],k=14,W=520,H=230;
+    var len=L*k,dia=D*k,x0=(W-len)/2,y0=(H-dia)/2,r=dia/2;
+    var capLen=len*0.52,capDia=dia+0.32*k,cy0=(H-capDia)/2,cr=capDia/2;
+    function fill(n){return COLORS[n]==='clear'?'rgba(170,200,225,.28)':COLORS[n];}
+    function stroke(n){return COLORS[n]==='clear'?'var(--ink-soft)':'rgba(0,0,0,.18)';}
+    var bodyLen=len*0.9;
+    var g='';
+    g+='<rect x="'+x0+'" y="'+y0+'" width="'+bodyLen+'" height="'+dia+'" rx="'+r+'" fill="'+fill(body)+'" stroke="'+stroke(body)+'" stroke-width="1.5"/>';
+    g+='<rect x="'+(x0+len-capLen)+'" y="'+cy0+'" width="'+capLen+'" height="'+capDia+'" rx="'+cr+'" fill="'+fill(cap)+'" stroke="'+stroke(cap)+'" stroke-width="1.5"/>';
+    g+='<rect x="'+(x0+len-capLen)+'" y="'+cy0+'" width="'+(cr)+'" height="'+capDia+'" fill="'+fill(cap)+'"/>';
+    g+='<line x1="'+(x0+len-capLen)+'" y1="'+cy0+'" x2="'+(x0+len-capLen)+'" y2="'+(cy0+capDia)+'" stroke="'+stroke(cap)+'" stroke-width="1.5"/>';
+    g+='<rect x="'+(x0+r*0.6)+'" y="'+(y0+dia*0.16)+'" width="'+(len*0.7)+'" height="'+(dia*0.12)+'" rx="'+(dia*0.06)+'" fill="#fff" opacity=".35"/>';
+    if(txt){var dark=(cap==='White'||cap==='Yellow'||cap==='Clear'||cap==='Light blue'||cap==='Pink');g+='<text x="'+(x0+len-capLen/2)+'" y="'+(H/2+5)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="'+Math.max(11,Math.min(16,capLen/(txt.length*0.7)))+'" fill="'+(dark?'#1a1a1a':'#ffffff')+'">'+esc(txt)+'</text>';}
+    g+='<line x1="'+x0+'" y1="'+(H-14)+'" x2="'+(x0+len)+'" y2="'+(H-14)+'" stroke="var(--ink-soft)" stroke-width="1"/><line x1="'+x0+'" y1="'+(H-19)+'" x2="'+x0+'" y2="'+(H-9)+'" stroke="var(--ink-soft)"/><line x1="'+(x0+len)+'" y1="'+(H-19)+'" x2="'+(x0+len)+'" y2="'+(H-9)+'" stroke="var(--ink-soft)"/>';
+    g+='<text x="'+(W/2)+'" y="'+(H-20)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="12" fill="var(--ink-soft)">'+L+' mm closed</text>';
+    svg.innerHTML=g;
+    var fillTxt=dens>0?Math.round(s[2]*dens*1000).toLocaleString('en-US')+' mg at '+dens+' g/ml':'–';
+    sum.innerHTML='<dt>Type</dt><dd>'+esc(type)+'</dd><dt>Size</dt><dd>'+esc(size)+' · '+s[2].toFixed(2)+' ml</dd><dt>Cap / body</dt><dd>'+esc(cap)+' / '+esc(body)+'</dd><dt>Opacifier</dt><dd>'+(cap==='Clear'&&body==='Clear'?'None (clear)':esc(op))+'</dd><dt>Printing</dt><dd>'+(txt?'"'+esc(txt)+'"':'None')+'</dd><dt>Est. fill</dt><dd>'+fillTxt+'</dd>';
+    f.dataset.q=new URLSearchParams({type:type,size:size,cap:cap,body:body,opacifier:(cap==='Clear'&&body==='Clear'?'None (clear)':op),print:txt,qty:$('#b-qty',f).value}).toString();
+  }
+  f.addEventListener('input',draw);f.addEventListener('change',draw);
+  $('#b-quote',root).addEventListener('click',function(e){e.preventDefault();draw();go('contact',f.dataset.q);});
+  draw();
+}
+
+/* ---------- contact form ---------- */
+function initContact(root){
+  var form=$('#quote-form',root);if(!form)return;
+  var q=BUNDLE?(window.__prefill||''):location.search.slice(1);
+  if(q){
+    var p=new URLSearchParams(q),map={type:'f-type',size:'f-size',qty:'f-volume'};
+    Object.keys(map).forEach(function(k){if(p.get(k)){var el=$('#'+map[k],form);if(el)el.value=p.get(k);}});
+    var spec=[];['cap','body','opacifier','print'].forEach(function(k){if(p.get(k))spec.push((k==='cap'?'Cap colour':k==='body'?'Body colour':k==='opacifier'?'Opacifier':'Printing')+': '+p.get(k));});
+    if(spec.length){$('#f-msg',form).value='Capsule built on your website:\n'+spec.join('\n')+'\n\n';}
+    var note=$('#prefill-note',root);if(note)note.hidden=false;
+  }
+  if(form.dataset.ready)return;form.dataset.ready='1';
+  var msg=$('#form-msg',form),btn=$('#f-submit',form);
+  function show(t){msg.textContent=t;msg.hidden=false;}
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=form.elements.name.value.trim(),co=form.elements.company.value.trim(),em=form.elements.email.value.trim();
+    if(!name||!co||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){show('Please fill in your name, company and a valid business email.');return;}
+    var key=form.elements.access_key.value;
+    if(key==='WEB3FORMS_ACCESS_KEY'){show('Preview only: this form starts sending once the site is live. For now, please email honghui158@163.com.');return;}
+    btn.disabled=true;btn.textContent='Sending…';
+    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Accept':'application/json'},body:new FormData(form)})
+      .then(function(r){return r.json();})
+      .then(function(d){if(d.success){form.reset();show('Thank you. We received your request and will get back to you soon.');}else{show('The request did not go through. Please try again, or email honghui158@163.com.');}})
+      .catch(function(){show('The request did not go through. Please check your connection, or email honghui158@163.com.');})
+      .then(function(){btn.disabled=false;btn.textContent='Send request';});
+  });
+}
+
+/* ---------- knowledge filter ---------- */
+function initKnowledge(root){
+  var box=$('#art-filter',root);if(!box||box.dataset.ready)return;box.dataset.ready='1';
+  var input=$('#art-q',box),cards=$$('[data-tags]',root),empty=$('#art-empty',root);
+  function run(){
+    var t=(box.querySelector('[name="art-tag"]:checked')||{}).value||'All',q=input.value.trim().toLowerCase(),n=0;
+    cards.forEach(function(c){var ok=(t==='All'||c.dataset.tags.indexOf(t)>-1)&&(!q||c.textContent.toLowerCase().indexOf(q)>-1);c.hidden=!ok;if(ok)n++;});
+    empty.hidden=n>0;
+  }
+  box.addEventListener('input',run);box.addEventListener('change',run);
+}
+
+
+/* ---------- home hero carousel ---------- */
+(function(){
+  var s=document.getElementById('hero-slider');if(!s)return;
+  var track=s.querySelector('.hs-track'),tabs=Array.prototype.slice.call(s.querySelectorAll('.hs-tab')),n=tabs.length,i=0,timer=null,DUR=6000;
+  var still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  s.style.setProperty('--hs-dur',DUR+'ms');
+  function to(k){i=(k+n)%n;track.style.transform='translateX(-'+(i*100)+'%)';tabs.forEach(function(d,j){d.removeAttribute('aria-current');});void s.offsetWidth;tabs[i].setAttribute('aria-current','true');}
+  function play(){s.classList.remove('paused');if(still)return;stop();timer=setInterval(function(){to(i+1);},DUR);}
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  tabs.forEach(function(d,j){d.addEventListener('click',function(){to(j);play();});});
+  s.addEventListener('mouseenter',function(){stop();s.classList.add('paused');});s.addEventListener('mouseleave',play);
+  var x0=null;s.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+  s.addEventListener('touchend',function(e){if(x0!==null){var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40){to(i+(dx<0?1:-1));play();}x0=null;}});
+  play();
+})();
+
+/* ---------- header over home hero ---------- */
+function setHomeMode(isHome){
+  document.documentElement.classList.toggle('home-over',!!isHome);
+  onScroll();
+}
+function onScroll(){if(hdr)hdr.classList.toggle('solid',window.scrollY>40||!document.documentElement.classList.contains('home-over'));}
+window.addEventListener('scroll',onScroll,{passive:true});
+
+var INIT={'capsule-builder':initBuilder,'size-guide':initCalc,'contact':initContact,'knowledge':initKnowledge};
+
+/* ---------- routing (preview bundle only) ---------- */
+function route(){
+  var name=(location.hash||'#home').slice(1);
+  var pg=document.querySelector('[data-page="'+name+'"]');
+  if(!pg){var anchor=document.getElementById(name);if(anchor){var host=anchor.closest('[data-page]');if(host&&host.hidden){show(host);}setTimeout(function(){anchor.scrollIntoView();},30);return;}pg=document.querySelector('[data-page="home"]');name='home';}
+  show(pg);window.scrollTo(0,0);
+}
+function show(pg){
+  $$('[data-page]').forEach(function(p){p.hidden=p!==pg;});
+  var n=pg.getAttribute('data-page');
+  setHomeMode(n==='home');
+  document.title=pg.getAttribute('data-title')||document.title;
+  $$('nav.main>.item>a').forEach(function(a){if(a.getAttribute('data-sec')===pg.getAttribute('data-sec'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  if(INIT[n])INIT[n](pg);
+}
+if(BUNDLE){window.addEventListener('hashchange',route);route();}
+else{var n=document.body.getAttribute('data-page');setHomeMode(n==='home');if(INIT[n])INIT[n](document);}
+})();
+
+/* ---------- history timeline: gentle auto-scroll + arrows ---------- */
+(function(){
+  var box=document.querySelector('.tl-scroll');if(!box)return;
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var paused=false,dir=1,last=0,wait=0,pos=0;
+  function pause(){paused=true;}
+  box.addEventListener('mouseenter',pause);box.addEventListener('mouseleave',function(){paused=false;pos=box.scrollLeft;});
+  box.addEventListener('touchstart',function(){paused=true;},{passive:true});
+  box.addEventListener('focus',pause);
+  document.querySelectorAll('.tl-btn').forEach(function(b){b.addEventListener('click',function(){paused=true;box.scrollBy({left:+b.getAttribute('data-dir')*500,behavior:'smooth'});setTimeout(function(){pos=box.scrollLeft;paused=false;},6000);});});
+  var down=false,sx=0,sl=0;
+  box.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse')return;down=true;sx=e.clientX;sl=box.scrollLeft;box.style.cursor='grabbing';});
+  window.addEventListener('pointerup',function(){if(down){down=false;box.style.cursor='';pos=box.scrollLeft;}});
+  window.addEventListener('pointermove',function(e){if(down){box.scrollLeft=sl-(e.clientX-sx);}});
+  if(reduce)return;
+  function tick(t){
+    var dt=last?Math.min(t-last,50):16;last=t;
+    var max=box.scrollWidth-box.clientWidth;
+    if(!paused&&!down&&max>0&&box.offsetParent){
+      if(wait>0){wait-=dt;}
+      else{pos+=dir*dt*0.03;if(pos>=max){pos=max;dir=-1;wait=2500;}else if(pos<=0){pos=0;dir=1;wait=2500;}box.scrollLeft=pos;}
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ---------- export map: tap to light up a destination (touch) ---------- */
+(function(){
+  document.querySelectorAll('.mission-map svg').forEach(function(svg){
+    svg.addEventListener('click',function(e){
+      var g=e.target.closest('.mp-dest');
+      svg.querySelectorAll('.mp-dest.on').forEach(function(x){if(x!==g)x.classList.remove('on');});
+      if(g)g.classList.toggle('on');
+      svg.classList.toggle('has-on',!!svg.querySelector('.mp-dest.on'));
+    });
+  });
+})();
+</script></body></html>
